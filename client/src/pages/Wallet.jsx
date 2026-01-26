@@ -14,30 +14,53 @@ const Wallet = () => {
     const handleAddMoney = async () => {
         if (!amount || amount <= 0) return;
         try {
+            // 1. Create Order
             const order = await walletService.addMoney(amount, user.token);
 
-            // MOCK RAZORPAY
-            // In real app: Open Razorpay modal.
-            // Here: Simulate success immediately for development without keys (or assume user adds keys).
-            // Ideally we check for window.Razorpay. If not present, we simulate verification call directly.
+            // 2. Open Razorpay
+            const options = {
+                key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_RwgMfvLHtHlumx', // Use env or fallback to user's key
+                amount: order.amount,
+                currency: order.currency,
+                name: "Focus App",
+                description: "Add Funds to Wallet",
+                order_id: order.id,
+                handler: async function (response) {
+                    try {
+                        // 3. Verify Payment
+                        await walletService.verifyPayment({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            amount: amount
+                        }, user.token);
 
-            // Verify (Simulation)
-            await walletService.verifyPayment({
-                razorpay_order_id: order.id,
-                razorpay_payment_id: 'pay_mock_' + Date.now(),
-                razorpay_signature: 'mock_signature', // Backend needs to bypass sig check in dev or we use test mode
-                amount: amount // Pass amount for our simple mocked controller update if strict Razorpay not required?
-                // The backend 'verifyPayment' checks signature strictly.
-                // If we are committed to "Production Grade" we need real keys. 
-                // Assuming User will provide keys. 
-                // I will leave logic as "Requires Keys" but add a fallback note or dummy.
-            }, user.token);
+                        setMsg('Money Added Successfully! 🎉');
+                        setAmount('');
+                        refreshWallet();
+                    } catch (err) {
+                        console.error(err);
+                        setMsg('Verification Failed');
+                    }
+                },
+                prefill: {
+                    name: user.username,
+                    email: user.email,
+                },
+                theme: {
+                    color: "#22c55e"
+                }
+            };
 
-            setMsg('Money Added (Mock verification - check console if failed)');
-            refreshWallet();
+            const rzp1 = new window.Razorpay(options);
+            rzp1.on('payment.failed', function (response) {
+                setMsg('Payment Failed: ' + response.error.description);
+            });
+            rzp1.open();
+
         } catch (error) {
             console.error(error);
-            setMsg('Payment Failed (Ensure Razorpay keys in .env)');
+            setMsg('Failed to initiate payment');
         }
     };
 
