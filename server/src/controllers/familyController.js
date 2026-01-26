@@ -16,6 +16,11 @@ const inviteChild = asyncHandler(async (req, res) => {
         throw new Error('Child email is required');
     }
 
+    if (childEmail === req.user.email) {
+        res.status(400);
+        throw new Error('You cannot invite yourself');
+    }
+
     // Check if link already exists
     const existingLink = await FamilyLink.findOne({ parentId, childEmail });
     if (existingLink) {
@@ -55,6 +60,11 @@ const acceptInvite = asyncHandler(async (req, res) => {
     if (!link) {
         res.status(404);
         throw new Error('Invalid or expired invite code');
+    }
+
+    if (link.parentId.toString() === childId.toString()) {
+        res.status(400);
+        throw new Error('You cannot link to your own account');
     }
 
     // Optional: Verify email matches if strict

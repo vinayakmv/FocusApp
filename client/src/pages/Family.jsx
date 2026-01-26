@@ -1,23 +1,27 @@
 import { useState, useEffect } from 'react';
-import familyService from '../services/familyService';
 import { useAuth } from '../context/AuthContext';
+import familyService from '../services/familyService';
 
 const Family = () => {
     const { user } = useAuth();
     const [children, setChildren] = useState([]);
-    const [inviteEmail, setInviteEmail] = useState('');
-    const [inviteCode, setInviteCode] = useState(''); // For child accepting
-    const [generatedCode, setGeneratedCode] = useState(null); // For parent display
-    const [msg, setMsg] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [viewMode, setViewMode] = useState('PARENT'); // PARENT or CHILD
 
-    // Assign Target Form
-    const [targetForm, setTargetForm] = useState({ childId: '', name: '', goal: 1, expiryDate: '' });
+    // Invite State
+    const [inviteEmail, setInviteEmail] = useState('');
+    const [inviteCodeResult, setInviteCodeResult] = useState('');
+    const [showInviteModal, setShowInviteModal] = useState(false);
+
+    // Accept Invite State
+    const [acceptCode, setAcceptCode] = useState('');
+    const [acceptMsg, setAcceptMsg] = useState('');
 
     useEffect(() => {
-        if (user?.token && user?.ageGroup === 'ADULT') {
+        if (user && viewMode === 'PARENT') {
             fetchChildren();
         }
-    }, [user]);
+    }, [user, viewMode]);
 
     const fetchChildren = async () => {
         try {
@@ -25,142 +29,200 @@ const Family = () => {
             setChildren(data);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleInvite = async (e) => {
         e.preventDefault();
         try {
-            const res = await familyService.inviteChild(inviteEmail, user.token);
-            setGeneratedCode(res.inviteCode);
-            setMsg(`Invite generated for ${res.childEmail}`);
+            const data = await familyService.inviteChild(inviteEmail, user.token);
+            setInviteCodeResult(data.inviteCode);
+            setInviteEmail('');
         } catch (error) {
-            setMsg('Failed to invite');
+            alert('Failed to invite: ' + (error.response?.data?.message || error.message));
         }
     };
 
-    const handleAccept = async () => {
-        try {
-            await familyService.acceptInvite(inviteCode, user.token);
-            setMsg('Linked successfully! You can now receive tasks.');
-        } catch (error) {
-            setMsg('Invalid code');
-        }
-    };
-
-    const handleAssign = async (e) => {
+    const handleAcceptInvite = async (e) => {
         e.preventDefault();
         try {
-            await familyService.assignTarget(targetForm, user.token);
-            setMsg('Target assigned successfully');
-            setTargetForm({ ...targetForm, name: '', goal: 1 });
+            await familyService.acceptInvite(acceptCode, user.token);
+            setAcceptMsg('Successfully linked to parent!');
+            setAcceptCode('');
         } catch (error) {
-            setMsg('Failed to assign target');
+            setAcceptMsg('Error: ' + (error.response?.data?.message || 'Invalid code'));
         }
     };
 
     return (
-        <div className="space-y-8">
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-rose-500">Family & Relationships</h1>
-
-            {msg && <div className="glass-panel p-4 text-center text-pink-300 border-l-4 border-pink-500">{msg}</div>}
-
-            {/* PARENT VIEW */}
-            <div className="grid gap-6 md:grid-cols-2">
-                <div className="glass-panel p-6 rounded-2xl">
-                    <h2 className="text-xl font-bold text-white mb-4">Invite Child</h2>
-                    <form onSubmit={handleInvite} className="space-y-4">
-                        <input
-                            type="email"
-                            value={inviteEmail}
-                            onChange={e => setInviteEmail(e.target.value)}
-                            placeholder="Child's Email"
-                            className="w-full p-3 bg-black/40 rounded-xl border border-white/10 text-white"
-                        />
-                        <button className="w-full py-3 bg-pink-600 rounded-xl font-bold hover:bg-pink-500 transition-all">Generate Code</button>
-                    </form>
-                    {generatedCode && (
-                        <div className="mt-4 p-4 bg-white/10 rounded-xl text-center">
-                            <p className="text-sm text-gray-400">Share this code:</p>
-                            <p className="text-3xl font-mono font-bold text-white tracking-widest">{generatedCode}</p>
-                        </div>
-                    )}
+        <div className="text-[var(--text-primary)] animate-fade-in p-4 pb-24">
+            {/* Header */}
+            <div className="flex justify-between items-end mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)]">
+                        Family Hub
+                    </h1>
+                    <p className="text-gray-400 text-sm">Manage your digital household.</p>
                 </div>
 
-                <div className="glass-panel p-6 rounded-2xl">
-                    <h2 className="text-xl font-bold text-white mb-4">Join Family</h2>
-                    <div className="space-y-4">
-                        <input
-                            type="text"
-                            value={inviteCode}
-                            onChange={e => setInviteCode(e.target.value)}
-                            placeholder="Enter 6-digit Code"
-                            className="w-full p-3 bg-black/40 rounded-xl border border-white/10 text-white font-mono text-center tracking-widest"
-                            maxLength={6}
-                        />
-                        <button onClick={handleAccept} className="w-full py-3 bg-blue-600 rounded-xl font-bold hover:bg-blue-500 transition-all">Accept Invite</button>
-                    </div>
+                {/* Role Toggles */}
+                <div className="flex bg-white/5 rounded-lg p-1 border border-white/10">
+                    <button
+                        onClick={() => setViewMode('PARENT')}
+                        className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${viewMode === 'PARENT' ? 'bg-[var(--accent-primary)] text-[var(--bg-primary)]' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        Parent
+                    </button>
+                    <button
+                        onClick={() => setViewMode('CHILD')}
+                        className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${viewMode === 'CHILD' ? 'bg-[var(--accent-primary)] text-[var(--bg-primary)]' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        Child
+                    </button>
                 </div>
             </div>
 
-            {/* MY CHILDREN LIST */}
-            {children.length > 0 && (
-                <div className="glass-panel p-6 rounded-2xl">
-                    <h2 className="text-xl font-bold text-white mb-6">My Children</h2>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {children.map(child => (
-                            <div key={child._id} className="bg-black/40 p-4 rounded-xl border border-white/5">
-                                <h3 className="font-bold text-lg">{child.name}</h3>
-                                <p className="text-sm text-gray-400">{child.email}</p>
-                                <div className="mt-4 flex gap-2 text-sm">
-                                    <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded">₹{child.walletBalance}</span>
-                                    <span className="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded">{child.tokenBalance} T</span>
-                                </div>
+            {/* PARENT VIEW */}
+            {viewMode === 'PARENT' && (
+                <div className="space-y-8">
+                    {/* Action Bar */}
+                    <div className="flex justify-between items-center bg-white/5 p-6 rounded-2xl border border-white/10 glass-panel">
+                        <div>
+                            <h2 className="text-xl font-bold">Your Children</h2>
+                            <p className="text-sm text-gray-400">Monitor focus & assign targets.</p>
+                        </div>
+                        <button
+                            onClick={() => setShowInviteModal(true)}
+                            className="px-6 py-3 bg-[var(--accent-primary)] text-[var(--bg-primary)] font-bold rounded-xl hover:brightness-110 transition-all shadow-lg flex items-center gap-2"
+                        >
+                            <span>+</span> Invite Child
+                        </button>
+                    </div>
 
-                                <button
-                                    onClick={() => setTargetForm({ ...targetForm, childId: child._id })}
-                                    className="mt-4 w-full py-2 bg-white/5 hover:bg-white/10 rounded border border-white/10 text-sm"
-                                >
-                                    Assign Task
-                                </button>
+                    {/* Children Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {loading ? (
+                            <p className="text-gray-500">Loading family...</p>
+                        ) : children.length === 0 ? (
+                            <div className="col-span-full text-center py-12 text-gray-500 bg-white/5 rounded-2xl border border-white/10 border-dashed">
+                                <p className="text-lg">No children linked yet.</p>
+                                <p className="text-sm">Click "Invite Child" to get started.</p>
                             </div>
-                        ))}
+                        ) : (
+                            children.map(child => (
+                                <div key={child._id} className="glass-panel p-6 rounded-2xl border border-white/10 hover:border-[var(--accent-primary)]/50 transition-all group relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-primary)]/10 rounded-full blur-3xl -mr-16 -mt-16 transition-all group-hover:bg-[var(--accent-primary)]/20"></div>
+
+                                    <div className="flex items-center gap-4 mb-6 relative z-10">
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-xl">
+                                            {child.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-lg">{child.name}</h3>
+                                            <p className="text-xs text-gray-400">{child.email}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4 mb-6 relative z-10">
+                                        <div className="bg-black/20 p-3 rounded-lg">
+                                            <p className="text-xs text-gray-400 uppercase tracking-widest">Balance</p>
+                                            <p className="text-xl font-mono font-bold text-yellow-400">{child.tokenBalance} <span className="text-xs">FOC</span></p>
+                                        </div>
+                                        <div className="bg-black/20 p-3 rounded-lg">
+                                            <p className="text-xs text-gray-400 uppercase tracking-widest">Focus</p>
+                                            <p className="text-xl font-mono font-bold text-blue-400">-- <span className="text-xs">hrs</span></p>
+                                        </div>
+                                    </div>
+
+                                    <button className="w-full py-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 font-bold transition-all text-sm relative z-10">
+                                        Assign Target 🎯
+                                    </button>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             )}
 
-            {/* ASSIGN TASK MODAL/SECTION */}
-            {targetForm.childId && (
-                <div className="glass-panel p-6 rounded-2xl border-t border-blue-500/50">
-                    <h2 className="text-xl font-bold text-white mb-4">Assign Target</h2>
-                    <form onSubmit={handleAssign} className="space-y-4">
+            {/* CHILD VIEW */}
+            {viewMode === 'CHILD' && (
+                <div className="max-w-md mx-auto mt-12 bg-white/5 p-8 rounded-2xl border border-white/10 glass-panel text-center">
+                    <h2 className="text-2xl font-bold mb-2">Join a Family</h2>
+                    <p className="text-gray-400 mb-8 text-sm">Enter the 6-digit code shared by your parent to link your account.</p>
+
+                    <form onSubmit={handleAcceptInvite} className="space-y-4">
                         <input
-                            value={targetForm.name}
-                            onChange={e => setTargetForm({ ...targetForm, name: e.target.value })}
-                            placeholder="Task Name"
-                            className="w-full p-3 bg-black/40 rounded-xl border border-white/10 text-white"
+                            type="text"
+                            value={acceptCode}
+                            onChange={(e) => setAcceptCode(e.target.value)}
+                            className="w-full p-4 text-center text-2xl tracking-[0.5em] font-mono font-bold bg-black/30 border border-white/10 rounded-xl focus:border-[var(--accent-primary)] focus:outline-none transition-all uppercase placeholder-gray-700"
+                            placeholder="000000"
+                            maxLength={6}
                         />
-                        <div className="flex gap-4">
-                            <input
-                                type="number"
-                                value={targetForm.goal}
-                                onChange={e => setTargetForm({ ...targetForm, goal: e.target.value })}
-                                placeholder="Hours"
-                                className="flex-1 p-3 bg-black/40 rounded-xl border border-white/10 text-white"
-                            />
-                            <input
-                                type="datetime-local"
-                                value={targetForm.expiryDate}
-                                onChange={e => setTargetForm({ ...targetForm, expiryDate: e.target.value })}
-                                className="flex-1 p-3 bg-black/40 rounded-xl border border-white/10 text-white"
-                            />
-                        </div>
-                        <button className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-bold">Assign Now</button>
+
+                        {acceptMsg && (
+                            <div className={`p-3 rounded-lg text-sm font-bold ${acceptMsg.includes('Success') ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                                {acceptMsg}
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            disabled={!acceptCode}
+                            className="w-full py-4 bg-[var(--accent-primary)] text-[var(--bg-primary)] font-bold rounded-xl hover:brightness-110 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Link Parent
+                        </button>
                     </form>
                 </div>
             )}
+
+            {/* Invite Modal */}
+            {showInviteModal && (
+                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-[#0f172a] border border-white/10 p-8 rounded-2xl max-w-sm w-full relative">
+                        <button onClick={() => setShowInviteModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white">✕</button>
+
+                        {!inviteCodeResult ? (
+                            <>
+                                <h2 className="text-2xl font-bold mb-2">Invite Child</h2>
+                                <p className="text-gray-400 mb-6 text-sm">Enter their email to generate a secure invite code.</p>
+                                <form onSubmit={handleInvite}>
+                                    <input
+                                        type="email"
+                                        value={inviteEmail}
+                                        onChange={(e) => setInviteEmail(e.target.value)}
+                                        className="w-full p-4 mb-4 bg-black/30 border border-white/10 rounded-xl focus:border-[var(--accent-primary)] focus:outline-none"
+                                        placeholder="child@example.com"
+                                        required
+                                    />
+                                    <button type="submit" className="w-full py-3 bg-[var(--accent-primary)] text-[var(--bg-primary)] font-bold rounded-xl hover:brightness-110">
+                                        Generate Code
+                                    </button>
+                                </form>
+                            </>
+                        ) : (
+                            <div className="text-center">
+                                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-green-400 text-3xl">✓</div>
+                                <h2 className="text-xl font-bold mb-2">Invite Created!</h2>
+                                <p className="text-gray-400 mb-6 text-sm">Share this code with your child:</p>
+
+                                <div className="p-4 bg-black/30 rounded-xl border border-white/10 font-mono text-3xl font-bold tracking-[0.2em] mb-6 select-all cursor-pointer hover:bg-black/40 transition-colors" onClick={() => navigator.clipboard.writeText(inviteCodeResult)}>
+                                    {inviteCodeResult}
+                                </div>
+
+                                <button onClick={() => { setInviteCodeResult(''); setShowInviteModal(false); }} className="w-full py-3 bg-white/10 hover:bg-white/20 font-bold rounded-xl">
+                                    Done
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
-    )
-}
+    );
+};
 
 export default Family;
