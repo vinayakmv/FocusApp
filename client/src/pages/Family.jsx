@@ -11,6 +11,7 @@ const Family = () => {
     // Invite State
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteCodeResult, setInviteCodeResult] = useState('');
+    const [inviteMsg, setInviteMsg] = useState(''); // New State
     const [showInviteModal, setShowInviteModal] = useState(false);
 
     // Accept Invite State
@@ -36,23 +37,26 @@ const Family = () => {
 
     const handleInvite = async (e) => {
         e.preventDefault();
+        setInviteMsg(''); // Clear prev msg
         try {
             const data = await familyService.inviteChild(inviteEmail, user.token);
             setInviteCodeResult(data.inviteCode);
             setInviteEmail('');
         } catch (error) {
-            alert('Failed to invite: ' + (error.response?.data?.message || error.message));
+            // Display specific backend error
+            setInviteMsg(error.response?.data?.message || error.message || 'Failed to generate code');
         }
     };
 
     const handleAcceptInvite = async (e) => {
         e.preventDefault();
+        setAcceptMsg('');
         try {
             await familyService.acceptInvite(acceptCode, user.token);
             setAcceptMsg('Successfully linked to parent!');
             setAcceptCode('');
         } catch (error) {
-            setAcceptMsg('Error: ' + (error.response?.data?.message || 'Invalid code'));
+            setAcceptMsg(error.response?.data?.message || 'Invalid code');
         }
     };
 
@@ -94,7 +98,7 @@ const Family = () => {
                             <p className="text-sm text-gray-400">Monitor focus & assign targets.</p>
                         </div>
                         <button
-                            onClick={() => setShowInviteModal(true)}
+                            onClick={() => { setShowInviteModal(true); setInviteMsg(''); setInviteCodeResult(''); }}
                             className="px-6 py-3 bg-[var(--accent-primary)] text-[var(--bg-primary)] font-bold rounded-xl hover:brightness-110 transition-all shadow-lg flex items-center gap-2"
                         >
                             <span>+</span> Invite Child
@@ -163,7 +167,7 @@ const Family = () => {
                         />
 
                         {acceptMsg && (
-                            <div className={`p-3 rounded-lg text-sm font-bold ${acceptMsg.includes('Success') ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                            <div className={`p-3 rounded-lg text-sm font-bold ${acceptMsg.includes('Success') || acceptMsg.includes('linked') ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
                                 {acceptMsg}
                             </div>
                         )}
@@ -198,6 +202,13 @@ const Family = () => {
                                         placeholder="child@example.com"
                                         required
                                     />
+
+                                    {inviteMsg && (
+                                        <div className="mb-4 p-3 rounded-lg text-sm font-bold bg-red-500/10 text-red-400 border border-red-500/30">
+                                            {inviteMsg}
+                                        </div>
+                                    )}
+
                                     <button type="submit" className="w-full py-3 bg-[var(--accent-primary)] text-[var(--bg-primary)] font-bold rounded-xl hover:brightness-110">
                                         Generate Code
                                     </button>
