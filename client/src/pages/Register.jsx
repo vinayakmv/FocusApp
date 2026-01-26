@@ -41,29 +41,29 @@ const Register = () => {
     }, []);
 
     return (
-        <div className="min-h-screen w-full flex bg-[#030014] text-white overflow-hidden font-sans">
-            {/* LEFT: Motivational Side (Desktop Only) */}
-            <div className="hidden lg:flex w-1/2 relative overflow-hidden items-center justify-center p-12">
-                {/* Abstract Background Art - Green Variant for Growth */}
+        <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#030014] text-white overflow-hidden font-sans relative">
+            {/* LEFT/TOP: Motivational Side */}
+            <div className="w-full lg:w-1/2 h-[45vh] lg:h-auto absolute lg:relative top-0 left-0 lg:inset-auto flex items-center justify-center p-8 lg:p-12 overflow-hidden z-0">
+                {/* Abstract Background Art - Green Variant */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#022c22] via-black to-[#050b14] z-0"></div>
                 <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay z-0"></div>
-                <div className="absolute top-20 right-20 w-[400px] h-[400px] bg-emerald-600/20 rounded-full blur-[100px] animate-pulse-slow"></div>
-                <div className="absolute bottom-20 left-20 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] animate-pulse-slow delay-1000"></div>
+                <div className="absolute top-20 right-20 w-[400px] h-[400px] bg-emerald-600/30 rounded-full blur-[100px] animate-pulse-slow"></div>
+                <div className="absolute bottom-20 left-20 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse-slow delay-1000"></div>
 
                 {/* Content */}
-                <div className="relative z-10 max-w-lg text-left">
-                    <div className="mb-12">
-                        <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(5,150,105,0.4)]">
+                <div className="relative z-10 max-w-lg text-left lg:text-left w-full">
+                    <div className="mb-0 lg:mb-12">
+                        <div className="hidden lg:flex w-16 h-16 bg-emerald-600 rounded-2xl items-center justify-center mb-6 shadow-[0_0_40px_rgba(5,150,105,0.4)]">
                             <span className="text-4xl font-bold">X</span>
                         </div>
-                        <h1 className="text-6xl font-bold leading-tight mb-4">
+                        <h1 className="text-4xl lg:text-6xl font-bold leading-tight mb-2 lg:mb-4">
                             Start Your <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Evolution.</span>
                         </h1>
-                        <p className="text-xl text-gray-400">Create your identity. Define your path.</p>
+                        <p className="text-sm lg:text-xl text-gray-300 lg:text-gray-400 max-w-xs">Create your identity. Define your path.</p>
                     </div>
 
-                    <div className="glass-panel bg-white/5 border border-white/10 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden">
+                    <div className="hidden lg:block glass-panel bg-white/5 border border-white/10 p-8 rounded-2xl backdrop-blur-md relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
                         <p className="text-xl italic text-gray-200 mb-4 transition-all duration-500 min-h-[80px] flex items-center">
                             "{quotes[quoteIndex].text}"
@@ -73,15 +73,15 @@ const Register = () => {
                 </div>
             </div>
 
-            {/* RIGHT: Register Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative">
+            {/* RIGHT/BOTTOM: Register Form */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative z-10 mt-[35vh] lg:mt-0">
                 {/* Mobile Background Elements */}
-                <div className="absolute lg:hidden inset-0 bg-gradient-to-b from-[#0D1B2A] to-black z-0"></div>
+                {/* <div className="absolute lg:hidden inset-0 bg-gradient-to-b from-[#0D1B2A] to-black z-0"></div> */}
 
-                <div className="w-full max-w-md relative z-10 animate-fade-in">
+                <div className="w-full max-w-md relative z-10 animate-fade-in bg-[#030014]/90 lg:bg-transparent p-8 lg:p-0 rounded-3xl lg:rounded-none backdrop-blur-xl lg:backdrop-blur-none border border-white/10 lg:border-none shadow-2xl lg:shadow-none">
                     <div className="mb-8">
-                        <h2 className="text-3xl font-bold mb-2">Create Account</h2>
-                        <p className="text-gray-400">Join thousands of disciplined achievers.</p>
+                        <h2 className="text-2xl lg:text-3xl font-bold mb-2">Create Account</h2>
+                        <p className="text-gray-400 text-sm">Join thousands of disciplined achievers.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
@@ -124,8 +124,8 @@ const Register = () => {
                                         key={group}
                                         onClick={() => setAgeGroup(group)}
                                         className={`p-3 rounded-lg border text-sm font-bold transition-all ${ageGroup === group
-                                                ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg'
-                                                : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                                            ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg'
+                                            : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
                                             }`}
                                     >
                                         {group === 'CHILD' ? '<13' : group === 'TEEN' ? '13-17' : '18+'}
