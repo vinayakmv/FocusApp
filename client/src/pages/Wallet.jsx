@@ -37,7 +37,7 @@ const Wallet = () => {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_RwgMfvLHtHlumx', // Use env or fallback to user's key
                 amount: order.amount,
                 currency: order.currency,
-                name: "Focus App",
+                name: "Studification",
                 description: "Add Funds to Wallet",
                 order_id: order.id,
                 handler: async function (response) {

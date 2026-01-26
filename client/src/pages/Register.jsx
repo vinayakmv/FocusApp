@@ -23,7 +23,7 @@ const Register = () => {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900 text-white p-4">
-            <h1 className="text-4xl font-bold mb-8">Join FocusApp</h1>
+            <h1 className="text-4xl font-bold mb-8">Join Studification</h1>
             <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col gap-4">
                 {error && <p className="text-red-500">{error}</p>}
                 <input

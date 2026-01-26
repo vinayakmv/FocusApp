@@ -28,7 +28,7 @@ const Layout = ({ children }) => {
             <header className="fixed top-0 w-full glass-panel z-50 px-6 py-4 flex justify-between items-center bg-transparent backdrop-blur-xl border-b border-white/5 shadow-sm">
                 <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center font-bold text-lg shadow-[0_0_15px_rgba(124,58,237,0.3)] animate-pulse-slow">F</div>
-                    <Link to="/dashboard" className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-violet-300 via-white to-cyan-300 drop-shadow-[0_0_10px_rgba(139,92,246,0.3)]">FocusApp</Link>
+                    <Link to="/dashboard" className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-violet-300 via-white to-cyan-300 drop-shadow-[0_0_10px_rgba(139,92,246,0.3)]">Studification</Link>
                 </div>
                 <button onClick={logout} className="text-xs font-semibold text-gray-400 hover:text-white transition-all px-4 py-1.5 rounded-full hover:bg-white/10 hover:shadow-glow border border-transparent hover:border-white/10">
                     Sign Out
