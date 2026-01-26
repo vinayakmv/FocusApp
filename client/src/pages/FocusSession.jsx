@@ -24,6 +24,17 @@ const FocusSession = () => {
     const timerRef = useRef(null);
     const distractionTimerRef = useRef(null);
 
+    // Timer Logic
+    useEffect(() => {
+        let interval = null;
+        if (isActive) {
+            interval = setInterval(() => {
+                setSeconds(s => s + 1);
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [isActive]);
+
     // Anti-Cheat: Visibility Listener
     useEffect(() => {
         const handleVisibilityChange = () => {
@@ -64,14 +75,12 @@ const FocusSession = () => {
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('beforeunload', handleBeforeUnload);
-            if (timerRef.current) clearInterval(timerRef.current);
             if (distractionTimerRef.current) clearInterval(distractionTimerRef.current);
         };
     }, [isActive, distractedSeconds]);
 
     const handleForceStop = async (reason) => {
         setIsActive(false);
-        clearInterval(timerRef.current);
         clearInterval(distractionTimerRef.current);
         setMsg(`Session Failed: ${reason}`);
         // Logic to mark session as invalid in backend could go here
@@ -86,17 +95,13 @@ const FocusSession = () => {
                 setIsActive(true);
                 setMsg('Focus Mode On');
                 setDistractedSeconds(0);
-
-                timerRef.current = setInterval(() => {
-                    setSeconds(s => s + 1);
-                }, 1000);
+                // Timer starts automatically via useEffect
             } catch (error) {
                 setMsg('Failed to start session');
             }
         } else {
             // Stop Session -> Ask for Rating
             setIsActive(false);
-            clearInterval(timerRef.current);
             setShowRatingModal(true);
         }
     };
