@@ -2,6 +2,7 @@ import { useState } from 'react';
 import targetService from '../services/targetService';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import CustomSelect from '../components/CustomSelect';
 
 const CreateTarget = () => {
     const { user } = useAuth();
@@ -78,46 +79,62 @@ const CreateTarget = () => {
                         </div>
                     </div>
 
-                    <div className="p-6 bg-gradient-to-br from-gray-900/80 to-black/80 rounded-2xl border border-yellow-500/20 shadow-inner">
-                        <h3 className="font-bold mb-4 text-yellow-400 flex items-center gap-2">
-                            <span className="text-xl">⚠️</span> Staking Commitment
+                    <div className="p-8 bg-black/40 rounded-3xl border-2 border-yellow-500/30 relative group hover:border-yellow-500/50 transition-all duration-500">
+                        <div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+                        <h3 className="font-bold mb-6 text-yellow-400 flex items-center gap-3 text-lg">
+                            <span className="text-2xl filter drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]">⚠️</span>
+                            <span className="tracking-widest uppercase">Staking Commitment</span>
                         </h3>
 
-                        <div className="mb-6">
-                            <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">Stake Amount</label>
+                        <div className="mb-8">
+                            <label className="block text-xs uppercase tracking-wider text-yellow-500/70 mb-2 font-bold">Stake Amount</label>
                             <input
                                 name="stakeAmount"
                                 type="number"
                                 onChange={handleChange}
-                                placeholder="0"
-                                className="w-full p-4 bg-black/50 rounded-xl border border-white/10 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none text-white transition-all font-mono text-lg"
+                                placeholder="0.00"
+                                className="w-full p-5 bg-black/60 rounded-2xl border border-yellow-500/30 focus:border-yellow-400 focus:shadow-[0_0_30px_rgba(234,179,8,0.2)] outline-none text-white transition-all font-mono text-3xl font-bold text-center tracking-tight"
                             />
                         </div>
 
-                        <div className="flex gap-4">
-                            <div className="flex-1">
-                                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">Currency</label>
-                                <select
-                                    name="stakeType"
-                                    onChange={handleChange}
-                                    className="w-full p-3 bg-neutral-900 rounded-lg border border-white/10 text-white outline-none focus:border-yellow-500 appearance-none"
-                                >
-                                    <option value="CASH">Cash (₹)</option>
-                                    <option value="TOKEN">Tokens</option>
-                                </select>
-                            </div>
-                            <div className="flex-1">
-                                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">On Failure</label>
-                                <select
-                                    name="failureMode"
-                                    onChange={handleChange}
-                                    className="w-full p-3 bg-neutral-900 rounded-lg border border-white/10 text-white outline-none focus:border-red-500 appearance-none"
-                                >
-                                    <option value="PENALTY">Pay Penalty</option>
-                                    <option value="DONATE">Donate</option>
-                                    <option value="BURN">Burn</option>
-                                </select>
-                            </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <CustomSelect
+                                label="Currency"
+                                name="stakeType"
+                                value={form.stakeType}
+                                onChange={handleChange}
+                                colorClass="white"
+                                options={[
+                                    { value: 'CASH', label: 'Cash (₹)' },
+                                    { value: 'TOKEN', label: 'Tokens' }
+                                ]}
+                            />
+
+                            <CustomSelect
+                                label="On Success 🚀"
+                                name="successMode"
+                                value={form.successMode}
+                                onChange={handleChange}
+                                colorClass="green"
+                                options={[
+                                    { value: 'REFUND', label: 'Refund Stake' },
+                                    { value: 'VOUCHER', label: 'Get Voucher 🎟️' }
+                                ]}
+                            />
+
+                            <CustomSelect
+                                label="On Failure 💀"
+                                name="failureMode"
+                                value={form.failureMode}
+                                onChange={handleChange}
+                                colorClass="red"
+                                options={[
+                                    { value: 'PENALTY', label: 'Pay Penalty' },
+                                    { value: 'DONATE', label: 'Donate Charity' },
+                                    { value: 'BURN', label: 'Burn Revenue' }
+                                ]}
+                            />
                         </div>
                     </div>
 
