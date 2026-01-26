@@ -64,8 +64,9 @@ const deleteTarget = async (userId, targetId) => {
         // In our simple wallet model, we don't need to do anything if we assume it was already subtracted.
         // BUT, if we have a "Locked Balance" logic, we should move it to "Burned/Penalty" wallet.
         // For now, let's assume 'deducted on creation' = gone. 
-        // We might want to log a transaction "Stake Forfeited".
-        await walletService.recordTransaction(userId, -target.stakeAmount, 'PENALTY', `Forfeited target: ${target.name}`);
+        // Forfeit Stake (Treat as Penalty)
+        // We use applyPenalty to log the transaction.
+        await walletService.applyPenalty(userId, target.stakeAmount, target._id);
     }
 
     await Target.deleteOne({ _id: targetId });

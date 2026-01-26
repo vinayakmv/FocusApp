@@ -15,14 +15,22 @@ const Layout = ({ children }) => {
     ];
 
     return (
-        <div className="flex flex-col min-h-screen text-white font-sans selection:bg-blue-500 selection:text-white">
-            {/* Top Bar - Glass */}
-            <header className="fixed top-0 w-full glass-panel z-50 px-6 py-4 flex justify-between items-center bg-gray-900/50 backdrop-blur-md border-b border-white/5">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center font-bold text-lg">F</div>
-                    <Link to="/dashboard" className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">FocusApp</Link>
+        <div className="flex flex-col min-h-screen text-white font-sans selection:bg-violet-500/50 selection:text-white relative">
+
+            {/* Ambient Background Animation */}
+            <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-violet-700/20 rounded-full blur-[100px] animate-blob mix-blend-screen"></div>
+                <div className="absolute top-[20%] right-[-10%] w-[400px] h-[400px] bg-cyan-700/20 rounded-full blur-[100px] animate-blob animation-delay-2000 mix-blend-screen"></div>
+                <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-indigo-700/20 rounded-full blur-[100px] animate-blob animation-delay-4000 mix-blend-screen"></div>
+            </div>
+
+            {/* Top Bar - Premium Glass */}
+            <header className="fixed top-0 w-full glass-panel z-50 px-6 py-4 flex justify-between items-center bg-transparent backdrop-blur-xl border-b border-white/5 shadow-sm">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center font-bold text-lg shadow-[0_0_15px_rgba(124,58,237,0.3)] animate-pulse-slow">F</div>
+                    <Link to="/dashboard" className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-violet-300 via-white to-cyan-300 drop-shadow-[0_0_10px_rgba(139,92,246,0.3)]">FocusApp</Link>
                 </div>
-                <button onClick={logout} className="text-xs font-medium text-gray-400 hover:text-white transition-colors px-3 py-1 rounded-full hover:bg-white/5">
+                <button onClick={logout} className="text-xs font-semibold text-gray-400 hover:text-white transition-all px-4 py-1.5 rounded-full hover:bg-white/10 hover:shadow-glow border border-transparent hover:border-white/10">
                     Sign Out
                 </button>
             </header>
@@ -34,18 +42,18 @@ const Layout = ({ children }) => {
                 </div>
             </main>
 
-            {/* Mobile Bottom Nav - Floating Glass */}
-            <nav className="fixed bottom-6 left-4 right-4 h-16 glass-panel rounded-2xl flex justify-around items-center shadow-2xl shadow-blue-900/20 z-50 border border-white/10">
+            {/* Mobile Bottom Nav - Premium Floating Dock */}
+            <nav className="fixed bottom-6 left-6 right-6 h-20 glass-panel rounded-3xl flex justify-around items-center shadow-[0_0_30px_rgba(0,0,0,0.5)] z-50 border border-white/10 backdrop-blur-2xl">
                 {navItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     return (
                         <Link
                             key={item.path}
                             to={item.path}
-                            className={`flex flex-col items-center justify-center w-full h-full transition-all duration-300 ${isActive ? 'text-blue-400 -translate-y-1' : 'text-gray-500 hover:text-gray-300'}`}
+                            className={`flex flex-col items-center justify-center w-full h-full transition-all duration-300 group ${isActive ? 'text-white -translate-y-1' : 'text-gray-500 hover:text-gray-300'}`}
                         >
-                            <span className={`text-xl mb-1 filter ${isActive ? 'drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]' : ''}`}>{item.icon}</span>
-                            {isActive && <span className="text-[10px] font-bold tracking-wider">{item.label}</span>}
+                            <span className={`text-2xl mb-1 filter transition-all duration-300 ${isActive ? 'drop-shadow-[0_0_12px_rgba(167,139,250,0.8)] scale-110' : 'group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]'}`}>{item.icon}</span>
+                            {isActive && <div className="h-1 w-1 bg-violet-400 rounded-full mt-1 animate-pulse" />}
                         </Link>
                     )
                 })}
