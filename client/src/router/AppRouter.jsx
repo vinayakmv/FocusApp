@@ -11,6 +11,8 @@ import Family from '../pages/Family' // Module 1
 import Rewards from '../pages/Rewards'
 import Partnerships from '../pages/Partnerships'
 import Reports from '../pages/Reports' // Module 6
+import Settings from '../pages/Settings'
+
 import Layout from '../components/Layout/Layout'
 
 const PrivateRoute = ({ children }) => {
@@ -34,6 +36,7 @@ const AppRouter = () => {
             <Route path="/family" element={<PrivateRoute><Layout><Family /></Layout></PrivateRoute>} />
             <Route path="/partnerships" element={<PrivateRoute><Layout><Partnerships /></Layout></PrivateRoute>} />
             <Route path="/reports" element={<PrivateRoute><Layout><Reports /></Layout></PrivateRoute>} />
+            <Route path="/settings" element={<PrivateRoute><Layout><Settings /></Layout></PrivateRoute>} />
         </Routes>
     )
 }

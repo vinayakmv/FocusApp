@@ -20,8 +20,11 @@ const Login = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900 text-white p-4">
-            <h1 className="text-4xl font-bold mb-8">Studification</h1>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#0D1B2A] text-white p-4">
+            <div className="mb-8 text-center">
+                <h1 className="text-5xl font-bold mb-2">Discipline<span className="text-yellow-400">X</span></h1>
+                <p className="text-gray-400 tracking-widest uppercase text-sm">Master Yourself</p>
+            </div>
             <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col gap-4">
                 {error && <p className="text-red-500">{error}</p>}
                 <input

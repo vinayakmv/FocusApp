@@ -4,10 +4,14 @@ import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import './styles/index.css'
 
+import { ThemeProvider } from './context/ThemeContext'
+
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         <ErrorBoundary>
-            <App />
+            <ThemeProvider>
+                <App />
+            </ThemeProvider>
         </ErrorBoundary>
     </React.StrictMode>,
 )
