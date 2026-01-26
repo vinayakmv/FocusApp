@@ -131,7 +131,6 @@ const CreateTarget = () => {
                                 colorClass="red"
                                 options={[
                                     { value: 'PENALTY', label: 'Pay Penalty' },
-                                    { value: 'DONATE', label: 'Donate Charity' },
                                     { value: 'BURN', label: 'Burn Revenue' }
                                 ]}
                             />

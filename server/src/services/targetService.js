@@ -54,8 +54,27 @@ const updateTargetProgress = async (targetId, durationMinutes) => {
     return true;
 };
 
+const deleteTarget = async (userId, targetId) => {
+    const target = await Target.findOne({ _id: targetId, userId });
+    if (!target) throw new Error("Target not found");
+
+    if (target.status === 'ACTIVE' && target.stakeAmount > 0) {
+        // Forfeit Stake (Treat as Penalty)
+        // Since stake was deducted on creation (pending state), we just need to confirm it is "GONE".
+        // In our simple wallet model, we don't need to do anything if we assume it was already subtracted.
+        // BUT, if we have a "Locked Balance" logic, we should move it to "Burned/Penalty" wallet.
+        // For now, let's assume 'deducted on creation' = gone. 
+        // We might want to log a transaction "Stake Forfeited".
+        await walletService.recordTransaction(userId, -target.stakeAmount, 'PENALTY', `Forfeited target: ${target.name}`);
+    }
+
+    await Target.deleteOne({ _id: targetId });
+    return { message: "Target deleted" };
+};
+
 export default {
     createTarget,
     getTargets,
     updateTargetProgress,
+    deleteTarget
 };

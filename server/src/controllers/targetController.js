@@ -18,7 +18,17 @@ const getTargets = async (req, res) => {
     }
 };
 
+const deleteTarget = async (req, res) => {
+    try {
+        await targetService.deleteTarget(req.user._id, req.params.id);
+        res.json({ message: 'Target deleted' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 export default {
     createTarget,
     getTargets,
+    deleteTarget,
 };

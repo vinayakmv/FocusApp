@@ -11,6 +11,21 @@ const Wallet = () => {
     const [tokenAmount, setTokenAmount] = useState('');
     const [msg, setMsg] = useState('');
 
+    // Force Body Background to Black for this page only
+    useEffect(() => {
+        const originalBodyStyle = document.body.style.background;
+        const originalHtmlStyle = document.documentElement.style.background;
+
+        // Override the gradient background completely
+        document.body.style.background = '#020617';
+        document.documentElement.style.background = '#020617';
+
+        return () => {
+            document.body.style.background = originalBodyStyle;
+            document.documentElement.style.background = originalHtmlStyle;
+        };
+    }, []);
+
     const handleAddMoney = async () => {
         if (!amount || amount <= 0) return;
         try {
@@ -76,7 +91,7 @@ const Wallet = () => {
     }
 
     return (
-        <div className="space-y-8 relative min-h-screen">
+        <div className="space-y-8 relative min-h-screen w-full text-white p-4 sm:p-8" style={{ backgroundColor: '#020617' }}>
             {/* Ambient Background */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-green-900/20 rounded-full blur-[120px]"></div>

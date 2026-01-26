@@ -16,9 +16,18 @@ const getTargets = async (token) => {
     return response.data;
 };
 
+const deleteTarget = async (id, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await api.delete(`/targets/${id}`, config);
+    return response.data;
+};
+
 const targetService = {
     createTarget,
     getTargets,
+    deleteTarget,
 };
 
 export default targetService;
