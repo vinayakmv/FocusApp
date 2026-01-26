@@ -55,23 +55,23 @@ const Dashboard = () => {
                 <div className="grid gap-6 md:grid-cols-2">
                     {targets.map(target => (
                         <div key={target._id} className="glass-panel p-6 rounded-2xl relative overflow-hidden group hover:border-blue-500/30 transition-all duration-300">
-                            {/* Delete Button (Top Right) */}
-                            <button
-                                onClick={() => handleDelete(target._id, target.status, target.stakeAmount)}
-                                className="absolute top-4 right-4 z-20 text-gray-600 hover:text-red-500 transition-colors p-2 bg-black/20 rounded-full opacity-0 group-hover:opacity-100"
-                                title="Delete Target"
-                            >
-                                🗑️
-                            </button>
-
                             <div className="flex justify-between items-start mb-4">
                                 <div>
                                     <h3 className="text-xl font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">{target.name}</h3>
                                     <p className="text-sm text-gray-400">Goal: <span className="text-white">{target.goal} hrs</span></p>
                                 </div>
-                                <span className={`text-xs px-3 py-1 rounded-full font-bold border ${target.status === 'ACTIVE' ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-red-500/10 border-red-500/30 text-red-400'}`}>
-                                    {target.status}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-xs px-3 py-1 rounded-full font-bold border ${target.status === 'ACTIVE' ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-red-500/10 border-red-500/30 text-red-400'}`}>
+                                        {target.status}
+                                    </span>
+                                    <button
+                                        onClick={() => handleDelete(target._id, target.status, target.stakeAmount)}
+                                        className="text-gray-400 hover:text-red-500 transition-colors p-1.5 hover:bg-white/5 rounded-lg opacity-0 group-hover:opacity-100"
+                                        title="Delete Target"
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="mb-6 bg-gray-900/50 rounded-lg p-3 border border-white/5">
