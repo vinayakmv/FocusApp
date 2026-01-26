@@ -76,7 +76,14 @@ const Wallet = () => {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 relative min-h-screen">
+            {/* Ambient Background */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
+                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-green-900/20 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-yellow-900/20 rounded-full blur-[120px]"></div>
+                <div className="absolute top-[40%] left-[50%] -translate-x-1/2 w-[300px] h-[300px] bg-blue-900/10 rounded-full blur-[100px]"></div>
+            </div>
+
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600">Wallet</h1>
 
             <div className="grid gap-6 md:grid-cols-2">
