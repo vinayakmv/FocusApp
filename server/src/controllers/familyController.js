@@ -123,4 +123,34 @@ const assignTarget = asyncHandler(async (req, res) => {
     res.status(201).json(target);
 });
 
-export { inviteChild, acceptInvite, getChildren, assignTarget };
+// @desc    Remove a child (Unlink)
+// @route   DELETE /api/family/:childId
+// @access  Private (Parent)
+const removeChild = asyncHandler(async (req, res) => {
+    const { childId } = req.params;
+
+    const link = await FamilyLink.findOne({
+        parentId: req.user._id,
+        childId
+    });
+
+    if (!link) {
+        res.status(404);
+        throw new Error('Child not found or not linked');
+    }
+
+    // Delete the link
+    await link.deleteOne();
+
+    // Reset Child User properties (optional: keep ageGroup?)
+    const childUser = await User.findById(childId);
+    if (childUser) {
+        childUser.parentId = undefined;
+        // Optionally keep ageGroup or reset it
+        await childUser.save();
+    }
+
+    res.json({ message: 'Child removed successfully' });
+});
+
+export { inviteChild, acceptInvite, getChildren, assignTarget, removeChild };

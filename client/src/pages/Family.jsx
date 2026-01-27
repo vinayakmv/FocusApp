@@ -13,6 +13,18 @@ const Family = () => {
     const [inviteCodeResult, setInviteCodeResult] = useState('');
     const [inviteMsg, setInviteMsg] = useState(''); // New State
     const [showInviteModal, setShowInviteModal] = useState(false);
+    const [childToDelete, setChildToDelete] = useState(null); // { id, name }
+
+    const confirmDeleteChild = async () => {
+        if (!childToDelete) return;
+        try {
+            await familyService.removeChild(childToDelete.id, user.token);
+            setChildren(prev => prev.filter(c => c._id !== childToDelete.id));
+            setChildToDelete(null);
+        } catch (error) {
+            alert('Failed to remove child: ' + (error.response?.data?.message || error.message));
+        }
+    };
 
     // Accept Invite State
     const [acceptCode, setAcceptCode] = useState('');
@@ -139,6 +151,14 @@ const Family = () => {
                                             <p className="text-xl font-mono font-bold text-blue-400">-- <span className="text-xs">hrs</span></p>
                                         </div>
                                     </div>
+
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setChildToDelete({ id: child._id, name: child.name }); }}
+                                        className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-all"
+                                        title="Remove Child"
+                                    >
+                                        🗑️
+                                    </button>
 
                                     <button className="w-full py-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 font-bold transition-all text-sm relative z-10">
                                         Assign Target 🎯
