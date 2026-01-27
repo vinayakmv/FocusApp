@@ -5,7 +5,8 @@ import {
     acceptInvite,
     getChildren,
     assignTarget,
-    removeChild
+    removeChild,
+    getMyFamily
 } from '../controllers/familyController.js';
 
 const router = express.Router();
@@ -13,6 +14,7 @@ const router = express.Router();
 router.post('/invite', protect, inviteChild);
 router.post('/accept', protect, acceptInvite);
 router.get('/children', protect, getChildren);
+router.get('/my-family', protect, getMyFamily);
 router.post('/assign-target', protect, assignTarget);
 router.delete('/:childId', protect, removeChild);
 

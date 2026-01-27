@@ -153,4 +153,22 @@ const removeChild = asyncHandler(async (req, res) => {
     res.json({ message: 'Child removed successfully' });
 });
 
-export { inviteChild, acceptInvite, getChildren, assignTarget, removeChild };
+// @desc    Get my family details (Child View)
+// @route   GET /api/family/my-family
+// @access  Private (Child)
+const getMyFamily = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id).populate('parentId', 'name email');
+
+    if (user.parentId) {
+        res.json({
+            status: 'LINKED',
+            parent: user.parentId
+        });
+    } else {
+        res.json({
+            status: 'UNLINKED'
+        });
+    }
+});
+
+export { inviteChild, acceptInvite, getChildren, assignTarget, removeChild, getMyFamily };

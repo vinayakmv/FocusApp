@@ -8,12 +8,14 @@ const Family = () => {
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState('PARENT'); // PARENT or CHILD
 
+    const [parentInfo, setParentInfo] = useState(null); // For Child View
+
     // Invite State
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteCodeResult, setInviteCodeResult] = useState('');
-    const [inviteMsg, setInviteMsg] = useState(''); // New State
+    const [inviteMsg, setInviteMsg] = useState('');
     const [showInviteModal, setShowInviteModal] = useState(false);
-    const [childToDelete, setChildToDelete] = useState(null); // { id, name }
+    const [childToDelete, setChildToDelete] = useState(null);
 
     const confirmDeleteChild = async () => {
         if (!childToDelete) return;
@@ -31,8 +33,9 @@ const Family = () => {
     const [acceptMsg, setAcceptMsg] = useState('');
 
     useEffect(() => {
-        if (user && viewMode === 'PARENT') {
-            fetchChildren();
+        if (user) {
+            if (viewMode === 'PARENT') fetchChildren();
+            if (viewMode === 'CHILD') fetchMyFamily();
         }
     }, [user, viewMode]);
 
@@ -40,6 +43,22 @@ const Family = () => {
         try {
             const data = await familyService.getChildren(user.token);
             setChildren(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchMyFamily = async () => {
+        setLoading(true);
+        try {
+            const data = await familyService.getMyFamily(user.token);
+            if (data.status === 'LINKED') {
+                setParentInfo(data.parent);
+            } else {
+                setParentInfo(null);
+            }
         } catch (error) {
             console.error(error);
         } finally {

@@ -30,5 +30,11 @@ const removeChild = async (childId, token) => {
     return response.data;
 };
 
-const familyService = { inviteChild, acceptInvite, getChildren, assignTarget, removeChild };
+const getMyFamily = async (token) => {
+    const config = { headers: { Authorization: `Bearer ${token}` } };
+    const response = await api.get('/family/my-family', config);
+    return response.data;
+};
+
+const familyService = { inviteChild, acceptInvite, getChildren, assignTarget, removeChild, getMyFamily };
 export default familyService;
