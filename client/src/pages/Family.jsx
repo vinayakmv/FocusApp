@@ -28,6 +28,38 @@ const Family = () => {
         }
     };
 
+    // Assign Target State
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [targetForm, setTargetForm] = useState({
+        childId: '',
+        childName: '',
+        goal: '',
+        stakeAmount: 5,
+        expiryDate: ''
+    });
+
+    const openAssignModal = (child) => {
+        setTargetForm({
+            childId: child._id,
+            childName: child.name,
+            goal: '',
+            stakeAmount: 5,
+            expiryDate: new Date(Date.now() + 86400000).toISOString().split('T')[0] // Default tomorrow
+        });
+        setShowAssignModal(true);
+    };
+
+    const handleAssignSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await familyService.assignTarget({ ...targetForm, name: targetForm.goal }, user.token);
+            alert(`Target assigned to ${targetForm.childName}!`);
+            setShowAssignModal(false);
+        } catch (error) {
+            alert('Failed to assign target: ' + (error.response?.data?.message || error.message));
+        }
+    };
+
     // Accept Invite State
     const [acceptCode, setAcceptCode] = useState('');
     const [acceptMsg, setAcceptMsg] = useState('');
@@ -179,7 +211,10 @@ const Family = () => {
                                         🗑️
                                     </button>
 
-                                    <button className="w-full py-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 font-bold transition-all text-sm relative z-10">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); openAssignModal(child); }}
+                                        className="w-full py-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 font-bold transition-all text-sm relative z-10"
+                                    >
                                         Assign Target 🎯
                                     </button>
                                 </div>
