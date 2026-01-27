@@ -293,7 +293,7 @@ const FocusSession = () => {
             </div>
 
             <p className="mt-6 text-gray-500 text-[10px] text-center max-w-md z-10 bg-black/40 px-3 py-1 rounded-full border border-white/5">
-                ⚠️ Leaving this app for >30s fails the session.
+                ⚠️ Leaving this app for &gt;30s fails the session.
             </p>
         </div>
     )
