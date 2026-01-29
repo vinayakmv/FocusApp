@@ -230,7 +230,7 @@ const FocusSession = () => {
     };
 
     return (
-        <div className="w-full h-[calc(100vh-200px)] flex flex-col items-center justify-center relative text-[var(--text-primary)] overflow-hidden">
+        <div className="w-full h-[calc(100vh-240px)] flex flex-col items-center justify-center relative text-[var(--text-primary)] overflow-hidden">
             {/* Ambient Background */}
             <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] blur-[100px] rounded-full pointer-events-none transition-colors duration-1000 ${isActive ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-600/10'}`}></div>
 
@@ -272,7 +272,7 @@ const FocusSession = () => {
             )}
 
             {/* Header / Mode Switcher */}
-            <div className="z-10 mb-4 flex gap-2 p-1 bg-white/5 rounded-full border border-white/10">
+            <div className="z-10 mb-2 flex gap-2 p-1 bg-white/5 rounded-full border border-white/10 scale-90">
                 {['STOPWATCH', 'POMODORO', 'COUNTDOWN'].map((m) => (
                     <button
                         key={m}
@@ -289,8 +289,8 @@ const FocusSession = () => {
             </div>
 
             {/* Motivational Quotes */}
-            <div className="z-10 mb-6 h-12 flex items-center justify-center text-center px-6 pointer-events-none transition-all duration-500">
-                <p key={currentQuoteIndex} className="text-xl md:text-2xl font-medium italic text-gray-400 animate-fade-in">
+            <div className="z-10 mb-4 h-10 flex items-center justify-center text-center px-6 pointer-events-none transition-all duration-500">
+                <p key={currentQuoteIndex} className="text-lg md:text-xl font-medium italic text-gray-400 animate-fade-in line-clamp-1">
                     "{MOTIVATIONAL_QUOTES[currentQuoteIndex]}"
                 </p>
             </div>
@@ -375,7 +375,7 @@ const FocusSession = () => {
                 )}
             </div>
 
-            <p className="mt-6 text-gray-500 text-[10px] text-center max-w-md z-10 bg-black/40 px-3 py-1 rounded-full border border-white/5">
+            <p className="mt-4 text-gray-500 text-[9px] text-center max-w-md z-10 bg-black/40 px-3 py-1 rounded-full border border-white/5 whitespace-nowrap">
                 ⚠️ Leaving this app for &gt;30s fails the session.
             </p>
         </div>
