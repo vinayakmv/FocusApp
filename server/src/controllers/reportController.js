@@ -41,8 +41,11 @@ const getUserReports = asyncHandler(async (req, res) => {
         { $group: { _id: "$effortRating", count: { $sum: 1 } } }
     ]);
 
-    // 4. Distraction Analysis (if available) - Simple count of distracted sessions
-    // const distractedSessions = await Session.countDocuments({ userId, effortRating: 'DISTRACTED' }); 
+    // 4. Recent Sessions History
+    const recentSessions = await Session.find({ userId, isValid: true })
+        .sort({ startTime: -1 })
+        .limit(15)
+        .populate('targetId', 'name');
 
     res.json({
         weeklyFocus: dailyData, // Array of minutes [Sun, Mon, ...]
@@ -52,7 +55,8 @@ const getUserReports = asyncHandler(async (req, res) => {
             failed: failedTargets,
             active: activeTargets
         },
-        effort: effortStats // Array of { _id: 'EASY', count: 5 }
+        effort: effortStats, // Array of { _id: 'EASY', count: 5 }
+        recentSessions
     });
 });
 

@@ -225,24 +225,9 @@ const FocusSession = () => {
     };
 
     return (
-        <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden text-[var(--text-primary)]">
+        <div className="w-full min-h-[70vh] flex flex-col items-center justify-center relative text-[var(--text-primary)]">
             {/* Ambient Background */}
             <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] blur-[100px] rounded-full pointer-events-none transition-colors duration-1000 ${isActive ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-600/10'}`}></div>
-
-            {/* Motivational Quotes */}
-            <div className="absolute top-24 left-0 w-full text-center px-6 pointer-events-none z-20">
-                <p key={currentQuoteIndex} className="text-xl font-medium italic text-gray-400 opacity-0 animate-fade-in duration-1000">
-                    "{MOTIVATIONAL_QUOTES[currentQuoteIndex]}"
-                </p>
-            </div>
-
-            {/* Target Info Overlay */}
-            {target && (
-                <div className="absolute top-8 right-8 text-right z-10 animate-fade-in">
-                    <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest">{target.name}</h2>
-                    <p className="text-xs text-gray-500">Goal: {target.goal} hrs | Today: <span className="text-blue-400">{(target.todayProgress / 60).toFixed(1)}h</span></p>
-                </div>
-            )}
 
             {/* Distraction Modal */}
             {showDistractionModal && (
@@ -282,7 +267,7 @@ const FocusSession = () => {
             )}
 
             {/* Header / Mode Switcher */}
-            <div className="z-10 mb-6 flex gap-2 p-1 bg-white/5 rounded-full border border-white/10">
+            <div className="z-10 mb-8 flex gap-2 p-1 bg-white/5 rounded-full border border-white/10">
                 {['STOPWATCH', 'POMODORO', 'COUNTDOWN'].map((m) => (
                     <button
                         key={m}
@@ -296,6 +281,13 @@ const FocusSession = () => {
                         {m === 'STOPWATCH' ? 'Stopwatch' : m === 'POMODORO' ? 'Pomodoro' : 'Countdown'}
                     </button>
                 ))}
+            </div>
+
+            {/* Motivational Quotes */}
+            <div className="z-10 mb-10 h-16 flex items-center justify-center text-center px-6 pointer-events-none transition-all duration-500">
+                <p key={currentQuoteIndex} className="text-xl md:text-2xl font-medium italic text-gray-400 animate-fade-in">
+                    "{MOTIVATIONAL_QUOTES[currentQuoteIndex]}"
+                </p>
             </div>
 
             {/* Goal Reached Modal */}

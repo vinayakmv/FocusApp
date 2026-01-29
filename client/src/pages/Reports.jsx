@@ -136,6 +136,41 @@ const Reports = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Session History List */}
+            <div className="glass-panel p-6 rounded-3xl border-t border-blue-500/20">
+                <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <span>🕒</span> Recent Focus Sessions
+                </h2>
+                <div className="space-y-4">
+                    {(!data.recentSessions || data.recentSessions.length === 0) ? (
+                        <p className="text-gray-500 text-sm italic">No recent sessions found.</p>
+                    ) : (
+                        data.recentSessions.map((session, index) => (
+                            <div key={session._id} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-blue-500/20 transition-all group">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-2 h-10 rounded-full ${session.effortRating === 'HARD' ? 'bg-orange-500' :
+                                            session.effortRating === 'EASY' ? 'bg-green-500' :
+                                                session.effortRating === 'DISTRACTED' ? 'bg-red-500' : 'bg-blue-500'
+                                        }`}></div>
+                                    <div>
+                                        <h3 className="font-bold text-white group-hover:text-blue-400 transition-colors">
+                                            {session.targetId?.name || "Target Deleted"}
+                                        </h3>
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">
+                                            {new Date(session.startTime).toLocaleDateString()} at {new Date(session.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <span className="block text-lg font-black text-white">{session.duration} min</span>
+                                    <span className="text-[10px] text-gray-400 font-bold px-2 py-0.5 rounded border border-white/10 uppercase tracking-tighter">{session.effortRating}</span>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
         </div>
     );
 };
