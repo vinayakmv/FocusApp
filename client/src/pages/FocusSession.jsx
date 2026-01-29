@@ -219,13 +219,18 @@ const FocusSession = () => {
     };
 
     const formatTime = (totalSeconds) => {
-        const m = Math.floor(totalSeconds / 60);
+        const h = Math.floor(totalSeconds / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
         const s = totalSeconds % 60;
+
+        if (h > 0) {
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
         return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
     return (
-        <div className="w-full min-h-[70vh] flex flex-col items-center justify-center relative text-[var(--text-primary)]">
+        <div className="w-full h-[calc(100vh-200px)] flex flex-col items-center justify-center relative text-[var(--text-primary)] overflow-hidden">
             {/* Ambient Background */}
             <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] blur-[100px] rounded-full pointer-events-none transition-colors duration-1000 ${isActive ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-600/10'}`}></div>
 
@@ -267,7 +272,7 @@ const FocusSession = () => {
             )}
 
             {/* Header / Mode Switcher */}
-            <div className="z-10 mb-8 flex gap-2 p-1 bg-white/5 rounded-full border border-white/10">
+            <div className="z-10 mb-4 flex gap-2 p-1 bg-white/5 rounded-full border border-white/10">
                 {['STOPWATCH', 'POMODORO', 'COUNTDOWN'].map((m) => (
                     <button
                         key={m}
@@ -284,7 +289,7 @@ const FocusSession = () => {
             </div>
 
             {/* Motivational Quotes */}
-            <div className="z-10 mb-10 h-16 flex items-center justify-center text-center px-6 pointer-events-none transition-all duration-500">
+            <div className="z-10 mb-6 h-12 flex items-center justify-center text-center px-6 pointer-events-none transition-all duration-500">
                 <p key={currentQuoteIndex} className="text-xl md:text-2xl font-medium italic text-gray-400 animate-fade-in">
                     "{MOTIVATIONAL_QUOTES[currentQuoteIndex]}"
                 </p>
