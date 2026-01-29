@@ -12,6 +12,7 @@ const getUserReports = asyncHandler(async (req, res) => {
     // 1. Weekly Focus Hours (Last 7 Days)
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0); // Start of the day 7 days ago
 
     const weeklySessions = await Session.find({
         userId,
@@ -20,8 +21,11 @@ const getUserReports = asyncHandler(async (req, res) => {
     });
 
     const dailyData = Array(7).fill(0);
+    const today = new Date();
+
     weeklySessions.forEach(session => {
-        const day = new Date(session.startTime).getDay(); // 0-6
+        const sessionDate = new Date(session.startTime);
+        const day = sessionDate.getDay(); // 0-6 (Sun-Sat)
         dailyData[day] += (session.duration || 0);
     });
 

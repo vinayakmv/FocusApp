@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const targetSchema = mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   name: { type: String, required: true },
-  goal: { type: Number, required: true }, // goal in minutes/hours
+  goal: { type: String, required: true }, // goal in minutes/hours OR task description
   stakeAmount: { type: Number, default: 0 },
   stakeType: { type: String, enum: ['CASH', 'TOKEN'], default: 'CASH' },
   successMode: { type: String, enum: ['REFUND', 'VOUCHER'], default: 'REFUND' }, // Module 3

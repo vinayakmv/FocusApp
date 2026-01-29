@@ -1,7 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import sessionService from '../services/sessionService';
+import targetService from '../services/targetService';
 import { useAuth } from '../context/AuthContext';
+
+const MOTIVATIONAL_QUOTES = [
+    "Focus on being productive instead of busy.",
+    "Your focus determines your reality.",
+    "Deep work is the superpower of the 21st century.",
+    "Starve your distractions, feed your focus.",
+    "What you focus on grows.",
+    "Energy flows where attention goes."
+];
 
 const FocusSession = () => {
     const { id } = useParams(); // targetId
@@ -9,12 +19,15 @@ const FocusSession = () => {
     const navigate = useNavigate();
 
     // Session State
+    const [target, setTarget] = useState(null);
+    const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
     const [isActive, setIsActive] = useState(false);
     const [mode, setMode] = useState('STOPWATCH'); // STOPWATCH, POMODORO, COUNTDOWN
     const [seconds, setSeconds] = useState(0);
     const [initialTime, setInitialTime] = useState(0); // For progress calculation
     const [sessionId, setSessionId] = useState(null);
     const [msg, setMsg] = useState('');
+    const [showGoalReachedModal, setShowGoalReachedModal] = useState(false);
 
     // Anti-Cheat State
     const [distractedSeconds, setDistractedSeconds] = useState(0);
@@ -26,31 +39,63 @@ const FocusSession = () => {
 
     const distractionTimerRef = useRef(null);
 
+    // Fetch Target on Load
+    useEffect(() => {
+        const fetchTarget = async () => {
+            if (user?.token && id) {
+                try {
+                    const targets = await targetService.getTargets(user.token);
+                    const t = targets.find(item => item._id === id);
+                    setTarget(t);
+                } catch (error) {
+                    console.error("Failed to fetch target", error);
+                }
+            }
+        };
+        fetchTarget();
+    }, [id, user]);
+
+    // Quote Rotation
+    useEffect(() => {
+        const quoteInterval = setInterval(() => {
+            setCurrentQuoteIndex(prev => (prev + 1) % MOTIVATIONAL_QUOTES.length);
+        }, 30000); // New quote every 30 seconds
+        return () => clearInterval(quoteInterval);
+    }, []);
+
     // Timer Logic
     useEffect(() => {
         let interval = null;
         if (isActive) {
             interval = setInterval(() => {
                 setSeconds(prev => {
-                    if (mode === 'STOPWATCH') {
-                        return prev + 1;
-                    } else {
-                        // Countdown Logic
-                        if (prev <= 0) {
-                            // Timer Finished
-                            clearInterval(interval);
+                    const nextSeconds = mode === 'STOPWATCH' ? prev + 1 : prev - 1;
+
+                    // Goal Reached Check (Every minute)
+                    if (target && !isNaN(target.goal) && nextSeconds % 60 === 0) {
+                        const totalMinutesWorked = (target.progress || 0) + (mode === 'STOPWATCH' ? (nextSeconds / 60) : ((initialTime - nextSeconds) / 60));
+                        const targetGoalMinutes = parseFloat(target.goal) * 60;
+
+                        if (totalMinutesWorked >= targetGoalMinutes && !showGoalReachedModal) {
                             setIsActive(false);
-                            setMsg('Session Complete!');
-                            setShowRatingModal(true); // Auto-finish
-                            return 0;
+                            setShowGoalReachedModal(true);
                         }
-                        return prev - 1;
                     }
+
+                    if (mode !== 'STOPWATCH' && nextSeconds <= 0) {
+                        // Timer Finished
+                        clearInterval(interval);
+                        setIsActive(false);
+                        setMsg('Session Complete!');
+                        setShowRatingModal(true);
+                        return 0;
+                    }
+                    return nextSeconds;
                 });
             }, 1000);
         }
         return () => clearInterval(interval);
-    }, [isActive, mode]);
+    }, [isActive, mode, target, initialTime, showGoalReachedModal]);
 
     // Anti-Cheat: Visibility Listener
     useEffect(() => {
@@ -184,6 +229,21 @@ const FocusSession = () => {
             {/* Ambient Background */}
             <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] blur-[100px] rounded-full pointer-events-none transition-colors duration-1000 ${isActive ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-600/10'}`}></div>
 
+            {/* Motivational Quotes */}
+            <div className="absolute top-24 left-0 w-full text-center px-6 pointer-events-none z-20">
+                <p key={currentQuoteIndex} className="text-xl font-medium italic text-gray-400 opacity-0 animate-fade-in duration-1000">
+                    "{MOTIVATIONAL_QUOTES[currentQuoteIndex]}"
+                </p>
+            </div>
+
+            {/* Target Info Overlay */}
+            {target && (
+                <div className="absolute top-8 right-8 text-right z-10 animate-fade-in">
+                    <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest">{target.name}</h2>
+                    <p className="text-xs text-gray-500">Goal: {target.goal} hrs | Today: <span className="text-blue-400">{(target.todayProgress / 60).toFixed(1)}h</span></p>
+                </div>
+            )}
+
             {/* Distraction Modal */}
             {showDistractionModal && (
                 <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
@@ -238,8 +298,34 @@ const FocusSession = () => {
                 ))}
             </div>
 
+            {/* Goal Reached Modal */}
+            {showGoalReachedModal && (
+                <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center backdrop-blur-md animate-fade-in">
+                    <div className="glass-panel p-10 rounded-3xl max-w-md w-full text-center border-yellow-500/30 border-2 shadow-[0_0_50px_rgba(234,179,8,0.2)]">
+                        <div className="text-6xl mb-6">🏆</div>
+                        <h2 className="text-3xl font-bold mb-2 text-white">Goal Reached!</h2>
+                        <p className="mb-8 text-gray-400">Amazing work! You've reached your {target?.goal}hr target. Do you want to continue focusing or end the session with a win?</p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => { setShowGoalReachedModal(false); setIsActive(true); }}
+                                className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold transition-all"
+                            >
+                                Keep Going
+                            </button>
+                            <button
+                                onClick={() => { setShowGoalReachedModal(false); setShowRatingModal(true); }}
+                                className="flex-1 py-4 bg-yellow-500 text-black rounded-2xl font-bold hover:brightness-110 shadow-lg shadow-yellow-500/20 transition-all"
+                            >
+                                End & Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Timer Circle */}
-            <div className={`glass-panel p-6 rounded-full w-[40vh] h-[40vh] max-w-[300px] max-h-[300px] flex flex-col items-center justify-center border-4 relative z-10 shadow-[0_0_50px_rgba(var(--accent-primary-rgb),0.2)] transition-all duration-500 ${isActive ? 'border-[var(--accent-primary)] scale-105' : 'border-[var(--glass-border)]'}`}>
+            <div className={`glass-panel p-6 rounded-full w-[40vh] h-[40vh] max-w-[300px] max-h-[300px] flex flex-col items-center justify-center border-4 relative z-10 shadow-[0_0_50px_rgba(var(--accent-primary-rgb),0.2)] transition-all duration-500 
+                ${isActive ? 'border-[var(--accent-primary)] scale-105 animate-breathing' : 'border-[var(--glass-border)]'}`}>
                 <div className="text-center">
                     <div className="text-6xl sm:text-7xl font-mono font-black tracking-tighter text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
                         {formatTime(seconds)}

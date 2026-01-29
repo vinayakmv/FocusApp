@@ -24,10 +24,17 @@ const deleteTarget = async (id, token) => {
     return response.data;
 };
 
+const markComplete = async (targetId, token) => {
+    const config = { headers: { Authorization: `Bearer ${token}` } };
+    const response = await api.put(`/targets/${targetId}/complete`, {}, config);
+    return response.data;
+};
+
 const targetService = {
     createTarget,
     getTargets,
     deleteTarget,
+    markComplete
 };
 
 export default targetService;

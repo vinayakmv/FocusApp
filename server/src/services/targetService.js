@@ -73,9 +73,18 @@ const deleteTarget = async (userId, targetId) => {
     return { message: "Target deleted" };
 };
 
+const updateTargetStatus = async (userId, targetId, status) => {
+    const target = await Target.findOne({ _id: targetId, userId });
+    if (!target) throw new Error("Target not found");
+    target.status = status;
+    await target.save();
+    return target;
+};
+
 export default {
     createTarget,
     getTargets,
     updateTargetProgress,
-    deleteTarget
+    deleteTarget,
+    updateTargetStatus
 };

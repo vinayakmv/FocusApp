@@ -118,6 +118,8 @@ const Family = () => {
             await familyService.acceptInvite(acceptCode, user.token);
             setAcceptMsg('Successfully linked to parent!');
             setAcceptCode('');
+            // Refresh status immediately
+            setTimeout(fetchMyFamily, 1500);
         } catch (error) {
             setAcceptMsg(error.response?.data?.message || 'Invalid code');
         }
@@ -227,33 +229,54 @@ const Family = () => {
             {/* CHILD VIEW */}
             {viewMode === 'CHILD' && (
                 <div className="max-w-md mx-auto mt-12 bg-white/5 p-8 rounded-2xl border border-white/10 glass-panel text-center">
-                    <h2 className="text-2xl font-bold mb-2">Join a Family</h2>
-                    <p className="text-gray-400 mb-8 text-sm">Enter the 6-digit code shared by your parent to link your account.</p>
-
-                    <form onSubmit={handleAcceptInvite} className="space-y-4">
-                        <input
-                            type="text"
-                            value={acceptCode}
-                            onChange={(e) => setAcceptCode(e.target.value)}
-                            className="w-full p-4 text-center text-2xl tracking-[0.5em] font-mono font-bold bg-black/30 border border-white/10 rounded-xl focus:border-[var(--accent-primary)] focus:outline-none transition-all uppercase placeholder-gray-700"
-                            placeholder="000000"
-                            maxLength={6}
-                        />
-
-                        {acceptMsg && (
-                            <div className={`p-3 rounded-lg text-sm font-bold ${acceptMsg.includes('Success') || acceptMsg.includes('linked') ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                                {acceptMsg}
+                    {parentInfo ? (
+                        <div className="animate-fade-in">
+                            <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+                                👨‍👩‍👧‍👦
                             </div>
-                        )}
+                            <h2 className="text-2xl font-bold mb-2">You are Linked!</h2>
+                            <p className="text-gray-400 mb-6 text-sm">Your account is managed by:</p>
 
-                        <button
-                            type="submit"
-                            disabled={!acceptCode}
-                            className="w-full py-4 bg-[var(--accent-primary)] text-[var(--bg-primary)] font-bold rounded-xl hover:brightness-110 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Link Parent
-                        </button>
-                    </form>
+                            <div className="bg-black/40 p-4 rounded-xl border border-white/10 mb-6">
+                                <h3 className="font-bold text-lg text-white">{parentInfo.name}</h3>
+                                <p className="text-gray-500 text-sm">{parentInfo.email}</p>
+                            </div>
+
+                            <p className="text-xs text-gray-500">
+                                Your parent can now assign targets and reward you tokens.
+                            </p>
+                        </div>
+                    ) : (
+                        <>
+                            <h2 className="text-2xl font-bold mb-2">Join a Family</h2>
+                            <p className="text-gray-400 mb-8 text-sm">Enter the 6-digit code shared by your parent to link your account.</p>
+
+                            <form onSubmit={handleAcceptInvite} className="space-y-4">
+                                <input
+                                    type="text"
+                                    value={acceptCode}
+                                    onChange={(e) => setAcceptCode(e.target.value)}
+                                    className="w-full p-4 text-center text-2xl tracking-[0.5em] font-mono font-bold bg-black/30 border border-white/10 rounded-xl focus:border-[var(--accent-primary)] focus:outline-none transition-all uppercase placeholder-gray-700"
+                                    placeholder="000000"
+                                    maxLength={6}
+                                />
+
+                                {acceptMsg && (
+                                    <div className={`p-3 rounded-lg text-sm font-bold ${acceptMsg.includes('Success') || acceptMsg.includes('linked') ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                                        {acceptMsg}
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={!acceptCode}
+                                    className="w-full py-4 bg-[var(--accent-primary)] text-[var(--bg-primary)] font-bold rounded-xl hover:brightness-110 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Link Parent
+                                </button>
+                            </form>
+                        </>
+                    )}
                 </div>
             )}
 
@@ -303,6 +326,102 @@ const Family = () => {
                                 </button>
                             </div>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {childToDelete && (
+                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+                    <div className="glass-panel p-8 rounded-2xl max-w-sm w-full text-center border-red-500/30 border-2">
+                        <h2 className="text-xl font-bold mb-4 text-red-400">Remove Child?</h2>
+                        <p className="mb-6 text-gray-300 text-sm">Are you sure you want to remove <strong>{childToDelete.name}</strong> from your family? This cannot be undone.</p>
+
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setChildToDelete(null)}
+                                className="flex-1 py-3 bg-white/10 hover:bg-white/20 rounded-xl font-bold transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDeleteChild}
+                                className="flex-1 py-3 bg-red-500 hover:bg-red-600 rounded-xl font-bold transition-all shadow-lg"
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Assign Target Modal */}
+            {showAssignModal && (
+                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+                    <div className="glass-panel p-8 rounded-2xl max-w-md w-full border border-white/10">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold">Assign Target</h2>
+                            <button onClick={() => setShowAssignModal(false)} className="text-gray-500 hover:text-white">✕</button>
+                        </div>
+
+                        <form onSubmit={handleAssignSubmit} className="space-y-4">
+                            <div>
+                                <label className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-2 block">For</label>
+                                <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-gray-300">
+                                    {targetForm.childName}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-2 block">Goal / Task</label>
+                                <input
+                                    type="text"
+                                    required
+                                    autoFocus
+                                    value={targetForm.goal}
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        setTargetForm(prev => ({ ...prev, goal: val }));
+                                    }}
+                                    placeholder="e.g. Finish Math Homework"
+                                    className="w-full p-3 bg-black/30 border border-white/10 rounded-xl focus:border-[var(--accent-primary)] focus:outline-none"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-2 block">Reward (FOC)</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        min="1"
+                                        value={targetForm.stakeAmount}
+                                        onChange={e => {
+                                            const val = e.target.value;
+                                            setTargetForm(prev => ({ ...prev, stakeAmount: val }));
+                                        }}
+                                        className="w-full p-3 bg-black/30 border border-white/10 rounded-xl focus:border-[var(--accent-primary)] focus:outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-2 block">Due Date</label>
+                                    <input
+                                        type="date"
+                                        required
+                                        value={targetForm.expiryDate}
+                                        onChange={e => {
+                                            const val = e.target.value;
+                                            setTargetForm(prev => ({ ...prev, expiryDate: val }));
+                                        }}
+                                        className="w-full p-3 bg-black/30 border border-white/10 rounded-xl focus:border-[var(--accent-primary)] focus:outline-none text-gray-300"
+                                    />
+                                </div>
+                            </div>
+
+                            <button type="submit" className="w-full py-4 bg-[var(--accent-primary)] text-[var(--bg-primary)] font-bold rounded-xl hover:brightness-110 shadow-lg mt-4">
+                                Assign Target 🎯
+                            </button>
+                        </form>
                     </div>
                 </div>
             )}

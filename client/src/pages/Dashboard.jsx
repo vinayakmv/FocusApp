@@ -24,6 +24,18 @@ const Dashboard = () => {
         fetchTargets();
     }, [user]);
 
+    const handleMarkComplete = async (todoId) => {
+        try {
+            await targetService.markComplete(todoId, user.token);
+            // Refresh locally
+            setTargets(prev => prev.map(t =>
+                t._id === todoId ? { ...t, status: 'PENDING_APPROVAL' } : t
+            ));
+        } catch (error) {
+            alert("Failed to mark complete: " + (error.response?.data?.message || error.message));
+        }
+    };
+
     const handleDeleteClick = (targetId, status, stake) => {
         setDeleteModal({ show: true, targetId, status, stake });
     };
@@ -60,56 +72,83 @@ const Dashboard = () => {
                 </div>
             ) : (
                 <div className="grid gap-6 md:grid-cols-2">
-                    {targets.map(target => (
-                        <div key={target._id} className="glass-panel p-6 rounded-2xl relative overflow-hidden group hover:border-blue-500/30 transition-all duration-300">
-                            {/* Decorative Background Gradient (Subtle) */}
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl pointer-events-none -mr-10 -mt-10"></div>
+                    {targets.map(target => {
+                        const isManual = isNaN(target.goal);
 
-                            <div className="flex justify-between items-start mb-4 relative z-10">
-                                <div>
-                                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">{target.name}</h3>
-                                    <p className="text-sm text-gray-400">Goal: <span className="text-white font-mono">{target.goal} hrs</span></p>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <span className={`text-[10px] px-2 py-0.5 rounded border uppercase tracking-wider font-bold ${target.status === 'ACTIVE' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
-                                        {target.status}
-                                    </span>
-                                    <button
-                                        onClick={() => handleDeleteClick(target._id, target.status, target.stakeAmount)}
-                                        className="text-gray-500 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-white/5 opacity-0 group-hover:opacity-100"
-                                        title="Delete Target"
-                                    >
-                                        🗑️
-                                    </button>
-                                </div>
-                            </div>
+                        return (
+                            <div key={target._id} className="glass-panel p-6 rounded-2xl relative overflow-hidden group hover:border-blue-500/30 transition-all duration-300">
+                                {/* Decorative Background Gradient (Subtle) */}
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl pointer-events-none -mr-10 -mt-10"></div>
 
-                            {/* Progress Section */}
-                            <div className="mb-6 bg-black/20 rounded-lg p-3 border border-white/5 relative z-10">
-                                <div className="flex justify-between text-xs mb-1.5 uppercase tracking-wide font-medium">
-                                    <span className="text-gray-500">Progress</span>
-                                    <span className="text-blue-400">{(target.progress / 60).toFixed(1)} hrs</span>
+                                <div className="flex justify-between items-start mb-4 relative z-10">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">{target.name}</h3>
+                                        <p className="text-sm text-gray-400">
+                                            Goal: <span className="text-white font-mono">{target.goal} {isManual ? '' : 'hrs'}</span>
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className={`text-[10px] px-2 py-0.5 rounded border uppercase tracking-wider font-bold 
+                                        ${target.status === 'ACTIVE' ? 'bg-green-500/10 border-green-500/20 text-green-400' :
+                                                target.status === 'PENDING_APPROVAL' ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400' :
+                                                    'bg-red-500/10 border-red-500/20 text-red-400'}`}>
+                                            {target.status.replace('_', ' ')}
+                                        </span>
+                                        <button
+                                            onClick={() => handleDeleteClick(target._id, target.status, target.stakeAmount)}
+                                            className="text-gray-500 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-white/5 opacity-0 group-hover:opacity-100"
+                                            title="Delete Target"
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full bg-blue-600 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(37,99,235,0.5)]"
-                                        style={{ width: `${Math.min(100, (target.progress / (target.goal * 60)) * 100)}%` }}
-                                    ></div>
-                                </div>
-                            </div>
 
-                            <div className="flex justify-between items-center relative z-10">
-                                <div className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                                    Stake: <span className="text-white font-mono text-sm ml-1">₹{target.stakeAmount}</span>
-                                </div>
-                                {target.status === 'ACTIVE' && (
-                                    <Link to={`/session/${target._id}`} className="btn-secondary px-4 py-1.5 rounded-lg text-sm font-bold shadow-lg shadow-blue-900/40 hover:scale-105 transition-transform">
-                                        Start Session ▶
-                                    </Link>
+                                {/* Progress Section - Only for Time Based */}
+                                {!isManual && (
+                                    <div className="mb-6 bg-black/20 rounded-lg p-3 border border-white/5 relative z-10">
+                                        <div className="flex justify-between text-xs mb-1.5 uppercase tracking-wide font-medium">
+                                            <span className="text-gray-500">Today: <span className="text-yellow-400">{(target.todayProgress / 60).toFixed(1)}h</span></span>
+                                            <span className="text-blue-400">Total: {(target.progress / 60).toFixed(1)} hrs</span>
+                                        </div>
+                                        <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-blue-600 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(37,99,235,0.5)]"
+                                                style={{ width: `${Math.min(100, (target.progress / (target.goal * 60)) * 100)}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
                                 )}
+
+                                <div className="flex justify-between items-center relative z-10">
+                                    <div className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                                        Stake: <span className="text-white font-mono text-sm ml-1">{target.stakeType === 'TOKEN' ? `${target.stakeAmount} FOC` : `₹${target.stakeAmount}`}</span>
+                                    </div>
+
+                                    {target.status === 'ACTIVE' && (
+                                        <>
+                                            {isManual ? (
+                                                <button
+                                                    onClick={() => handleMarkComplete(target._id)}
+                                                    className="btn-primary px-4 py-1.5 rounded-lg text-sm font-bold shadow-lg hover:brightness-110 transition-transform"
+                                                >
+                                                    Mark Complete ✓
+                                                </button>
+                                            ) : (
+                                                <Link to={`/session/${target._id}`} className="btn-secondary px-4 py-1.5 rounded-lg text-sm font-bold shadow-lg shadow-blue-900/40 hover:scale-105 transition-transform">
+                                                    Start Session ▶
+                                                </Link>
+                                            )}
+                                        </>
+                                    )}
+
+                                    {target.status === 'PENDING_APPROVAL' && (
+                                        <span className="text-xs font-bold text-yellow-400 animate-pulse">Waiting for Parent...</span>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
 
