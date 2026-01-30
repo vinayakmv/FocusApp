@@ -73,10 +73,10 @@ const FocusSession = () => {
 
                     // Goal Reached Check (Every minute)
                     if (target && !isNaN(target.goal) && nextSeconds % 60 === 0) {
-                        const totalMinutesWorked = (target.progress || 0) + (mode === 'STOPWATCH' ? (nextSeconds / 60) : ((initialTime - nextSeconds) / 60));
+                        const totalMinutesToday = (target.todayProgress || 0) + (mode === 'STOPWATCH' ? (nextSeconds / 60) : ((initialTime - nextSeconds) / 60));
                         const targetGoalMinutes = parseFloat(target.goal) * 60;
 
-                        if (totalMinutesWorked >= targetGoalMinutes && !showGoalReachedModal) {
+                        if (totalMinutesToday >= targetGoalMinutes && !showGoalReachedModal) {
                             setIsActive(false);
                             setShowGoalReachedModal(true);
                         }
@@ -222,15 +222,11 @@ const FocusSession = () => {
         const h = Math.floor(totalSeconds / 3600);
         const m = Math.floor((totalSeconds % 3600) / 60);
         const s = totalSeconds % 60;
-
-        if (h > 0) {
-            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
     return (
-        <div className="w-full h-[calc(100vh-240px)] flex flex-col items-center justify-center relative text-[var(--text-primary)] overflow-hidden">
+        <div className="w-full h-[calc(100vh-280px)] flex flex-col items-center justify-center relative text-[var(--text-primary)] overflow-hidden">
             {/* Ambient Background */}
             <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] blur-[100px] rounded-full pointer-events-none transition-colors duration-1000 ${isActive ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-600/10'}`}></div>
 
