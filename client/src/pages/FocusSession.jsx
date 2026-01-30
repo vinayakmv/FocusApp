@@ -36,6 +36,7 @@ const FocusSession = () => {
     // Metrics State
     const [showRatingModal, setShowRatingModal] = useState(false);
     const [effortRating, setEffortRating] = useState('NORMAL');
+    const [isSaving, setIsSaving] = useState(false);
 
     const distractionTimerRef = useRef(null);
 
@@ -187,8 +188,9 @@ const FocusSession = () => {
         if (newMode === 'COUNTDOWN') setSeconds(10 * 60); // Default 10m
     };
 
-    const submitSession = async () => {
-        if (sessionId) {
+    const submitSession = async (rating) => {
+        if (sessionId && !isSaving) {
+            setIsSaving(true);
             try {
                 // Duration in minutes
                 // For Stopwatch: seconds / 60
@@ -203,10 +205,11 @@ const FocusSession = () => {
                 // Valid duration check
                 if (duration < 1) duration = 1; // Min 1 minute credit
 
-                await sessionService.endSession({ sessionId, duration, effortRating }, user.token);
+                await sessionService.endSession({ sessionId, duration, effortRating: rating }, user.token);
                 navigate('/dashboard');
             } catch (error) {
                 setMsg('Failed to save session');
+                setIsSaving(false);
                 setTimeout(() => setMsg(''), 3000);
             }
         }
@@ -254,11 +257,13 @@ const FocusSession = () => {
                             {['EASY', 'NORMAL', 'HARD', 'DISTRACTED'].map(r => (
                                 <button
                                     key={r}
-                                    onClick={() => { setEffortRating(r); setTimeout(submitSession, 500); }}
-                                    className="w-full p-4 bg-white/5 hover:bg-[var(--accent-primary)]/20 border border-white/10 hover:border-[var(--accent-primary)] rounded-xl font-bold transition-all flex justify-between items-center group"
+                                    disabled={isSaving}
+                                    onClick={() => submitSession(r)}
+                                    className={`w-full p-4 bg-white/5 hover:bg-[var(--accent-primary)]/20 border border-white/10 hover:border-[var(--accent-primary)] rounded-xl font-bold transition-all flex justify-between items-center group touch-manipulation select-none active:scale-[0.98] ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                    style={{ WebkitTapHighlightColor: 'transparent' }}
                                 >
-                                    <span>{r}</span>
-                                    <span className="opacity-0 group-hover:opacity-100">➡️</span>
+                                    <span>{isSaving && effortRating === r ? 'Saving...' : r}</span>
+                                    {!isSaving && <span className="opacity-0 group-hover:opacity-100 scale-125">➡️</span>}
                                 </button>
                             ))}
                         </div>
