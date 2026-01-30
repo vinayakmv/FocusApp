@@ -16,6 +16,14 @@ const getTargets = async (token) => {
     return response.data;
 };
 
+const getTargetById = async (id, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await api.get(`/targets/${id}`, config);
+    return response.data;
+};
+
 const deleteTarget = async (id, token) => {
     const config = {
         headers: { Authorization: `Bearer ${token}` },
@@ -33,6 +41,7 @@ const markComplete = async (targetId, token) => {
 const targetService = {
     createTarget,
     getTargets,
+    getTargetById,
     deleteTarget,
     markComplete
 };

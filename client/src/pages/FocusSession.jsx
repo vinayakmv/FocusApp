@@ -44,8 +44,7 @@ const FocusSession = () => {
         const fetchTarget = async () => {
             if (user?.token && id) {
                 try {
-                    const targets = await targetService.getTargets(user.token);
-                    const t = targets.find(item => item._id === id);
+                    const t = await targetService.getTargetById(id, user.token);
                     setTarget(t);
                 } catch (error) {
                     console.error("Failed to fetch target", error);
@@ -226,7 +225,7 @@ const FocusSession = () => {
     };
 
     return (
-        <div className="w-full h-[calc(100vh-280px)] flex flex-col items-center justify-center relative text-[var(--text-primary)] overflow-hidden">
+        <div className="w-full flex-1 flex flex-col items-center justify-center relative text-[var(--text-primary)] py-4 sm:py-8">
             {/* Ambient Background */}
             <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] blur-[100px] rounded-full pointer-events-none transition-colors duration-1000 ${isActive ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-600/10'}`}></div>
 
@@ -268,7 +267,7 @@ const FocusSession = () => {
             )}
 
             {/* Header / Mode Switcher */}
-            <div className="z-10 mb-2 flex gap-2 p-1 bg-white/5 rounded-full border border-white/10 scale-90">
+            <div className="z-10 mb-6 flex gap-2 p-1 bg-white/5 rounded-full border border-white/10">
                 {['STOPWATCH', 'POMODORO', 'COUNTDOWN'].map((m) => (
                     <button
                         key={m}
@@ -285,8 +284,8 @@ const FocusSession = () => {
             </div>
 
             {/* Motivational Quotes */}
-            <div className="z-10 mb-4 h-10 flex items-center justify-center text-center px-6 pointer-events-none transition-all duration-500">
-                <p key={currentQuoteIndex} className="text-lg md:text-xl font-medium italic text-gray-400 animate-fade-in line-clamp-1">
+            <div className="z-10 mb-8 min-h-[3rem] flex items-center justify-center text-center px-6 pointer-events-none transition-all duration-500">
+                <p key={currentQuoteIndex} className="text-xl md:text-2xl font-medium italic text-gray-400 animate-fade-in line-clamp-2">
                     "{MOTIVATIONAL_QUOTES[currentQuoteIndex]}"
                 </p>
             </div>
@@ -317,10 +316,10 @@ const FocusSession = () => {
             )}
 
             {/* Timer Circle */}
-            <div className={`glass-panel p-6 rounded-full w-[40vh] h-[40vh] max-w-[300px] max-h-[300px] flex flex-col items-center justify-center border-4 relative z-10 shadow-[0_0_50px_rgba(var(--accent-primary-rgb),0.2)] transition-all duration-500 
+            <div className={`glass-panel p-4 rounded-full w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex flex-col items-center justify-center border-4 relative z-10 shadow-[0_0_50px_rgba(var(--accent-primary-rgb),0.2)] transition-all duration-500 
                 ${isActive ? 'border-[var(--accent-primary)] scale-105 animate-breathing' : 'border-[var(--glass-border)]'}`}>
-                <div className="text-center">
-                    <div className="text-6xl sm:text-7xl font-mono font-black tracking-tighter text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+                <div className="text-center w-full px-2">
+                    <div className="text-4xl sm:text-5xl md:text-7xl font-mono font-black tracking-tighter text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] truncate">
                         {formatTime(seconds)}
                     </div>
                     <p className="text-[var(--accent-secondary)] mt-2 font-medium tracking-widest uppercase text-xs opacity-80">
@@ -371,7 +370,7 @@ const FocusSession = () => {
                 )}
             </div>
 
-            <p className="mt-4 text-gray-500 text-[9px] text-center max-w-md z-10 bg-black/40 px-3 py-1 rounded-full border border-white/5 whitespace-nowrap">
+            <p className="mt-8 text-gray-500 text-[10px] text-center max-w-md z-10 bg-black/40 px-3 py-1 rounded-full border border-white/5">
                 ⚠️ Leaving this app for &gt;30s fails the session.
             </p>
         </div>

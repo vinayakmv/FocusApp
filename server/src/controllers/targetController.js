@@ -18,17 +18,33 @@ const getTargets = async (req, res) => {
         const startOfToday = new Date();
         startOfToday.setHours(0, 0, 0, 0);
 
-        const enrichedTargets = await Promise.all(targets.map(async (target) => {
-            const sessionsToday = await Session.find({
-                targetId: target._id,
-                startTime: { $gte: startOfToday },
-                isValid: true
-            });
-            const todayProgress = sessionsToday.reduce((acc, s) => acc + (s.duration || 0), 0);
-            return {
-                ...target.toObject(),
-                todayProgress
-            };
+        // Optimization: Use a single aggregation to get progress for all user targets today
+        const targetIds = targets.map(t => t._id);
+        const dailyProgressData = await Session.aggregate([
+            {
+                $match: {
+                    targetId: { $in: targetIds },
+                    startTime: { $gte: startOfToday },
+                    isValid: true
+                }
+            },
+            {
+                $group: {
+                    _id: "$targetId",
+                    todayProgress: { $sum: "$duration" }
+                }
+            }
+        ]);
+
+        // Map results back to targets
+        const progressMap = dailyProgressData.reduce((acc, curr) => {
+            acc[curr._id.toString()] = curr.todayProgress;
+            return acc;
+        }, {});
+
+        const enrichedTargets = targets.map(target => ({
+            ...target.toObject(),
+            todayProgress: progressMap[target._id.toString()] || 0
         }));
 
         res.json(enrichedTargets);
@@ -55,9 +71,35 @@ const markComplete = async (req, res) => {
     }
 };
 
+const getTarget = async (req, res) => {
+    try {
+        const target = await targetService.getTarget(req.user._id, req.params.id);
+        if (!target) return res.status(404).json({ message: "Target not found" });
+
+        // Calculate today's progress for the single target
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const sessionsToday = await Session.find({
+            targetId: target._id,
+            startTime: { $gte: startOfToday },
+            isValid: true
+        });
+        const todayProgress = sessionsToday.reduce((acc, s) => acc + (s.duration || 0), 0);
+
+        res.json({
+            ...target.toObject(),
+            todayProgress
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 export default {
     createTarget,
     getTargets,
+    getTarget,
     deleteTarget,
     markComplete
 };

@@ -38,6 +38,10 @@ const getTargets = async (userId) => {
     return await Target.find({ userId }).sort({ createdAt: -1 });
 };
 
+const getTarget = async (userId, targetId) => {
+    return await Target.findOne({ _id: targetId, userId });
+};
+
 const updateTargetProgress = async (targetId, durationMinutes) => {
     // This might be handled by session completion.
     // If goal is "accumulated", we add up. If goal is "one off", we mark done.
@@ -84,6 +88,7 @@ const updateTargetStatus = async (userId, targetId, status) => {
 export default {
     createTarget,
     getTargets,
+    getTarget,
     updateTargetProgress,
     deleteTarget,
     updateTargetStatus
