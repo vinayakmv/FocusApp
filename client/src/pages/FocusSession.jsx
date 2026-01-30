@@ -162,8 +162,6 @@ const FocusSession = () => {
                 const data = await sessionService.startSession(id, user.token);
                 setSessionId(data._id);
                 setIsActive(true);
-                setMsg('Focus Mode On');
-                setTimeout(() => setMsg(''), 3000);
                 setDistractedSeconds(0);
 
                 // Set initial time for progress calculations
@@ -322,9 +320,9 @@ const FocusSession = () => {
 
             {/* Timer Circle */}
             <div className={`glass-panel p-4 rounded-full w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex flex-col items-center justify-center border-4 relative z-10 shadow-[0_0_50px_rgba(var(--accent-primary-rgb),0.2)] transition-all duration-500 
-                ${isActive ? 'border-[var(--accent-primary)] scale-105 animate-breathing' : 'border-[var(--glass-border)]'}`}>
-                <div className="text-center w-full px-2">
-                    <div className="text-4xl sm:text-5xl md:text-7xl font-mono font-black tracking-tighter text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] truncate">
+                ${isActive ? 'border-[var(--accent-primary)] scale-105' : 'border-[var(--glass-border)]'}`}>
+                <div className="text-center w-full px-4">
+                    <div className="text-3xl sm:text-4xl md:text-6xl font-mono font-black tracking-tighter text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] truncate">
                         {formatTime(seconds)}
                     </div>
                     <p className="text-[var(--accent-secondary)] mt-2 font-medium tracking-widest uppercase text-xs opacity-80">
