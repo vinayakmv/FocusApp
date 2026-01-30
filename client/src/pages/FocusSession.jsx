@@ -236,7 +236,7 @@ const FocusSession = () => {
 
             {/* Distraction Modal */}
             {showDistractionModal && (
-                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
+                <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center backdrop-blur-sm">
                     <div className="glass-panel p-8 rounded-2xl max-w-sm w-full text-center border-red-500/30 border-2">
                         <h2 className="text-2xl font-bold mb-4 text-red-400">Distraction Detected!</h2>
                         <p className="mb-6 text-gray-300">You left the app for {distractedSeconds}s. Why?</p>
@@ -251,7 +251,7 @@ const FocusSession = () => {
 
             {/* Rating Modal */}
             {showRatingModal && (
-                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
+                <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center backdrop-blur-sm">
                     <div className="glass-panel p-8 rounded-2xl max-w-sm w-full text-center border-[var(--accent-primary)] border-2">
                         <h2 className="text-2xl font-bold mb-2">Session Complete!</h2>
                         <p className="mb-6 text-gray-400">How would you rate your focus?</p>
@@ -297,7 +297,7 @@ const FocusSession = () => {
 
             {/* Goal Reached Modal */}
             {showGoalReachedModal && (
-                <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center backdrop-blur-md animate-fade-in">
+                <div className="fixed inset-0 bg-black/90 z-[101] flex items-center justify-center backdrop-blur-md animate-fade-in">
                     <div className="glass-panel p-10 rounded-3xl max-w-md w-full text-center border-yellow-500/30 border-2 shadow-[0_0_50px_rgba(234,179,8,0.2)]">
                         <div className="text-6xl mb-6">🏆</div>
                         <h2 className="text-3xl font-bold mb-2 text-white">Goal Reached!</h2>
