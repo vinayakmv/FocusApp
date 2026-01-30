@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
     const [targets, setTargets] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [deleteModal, setDeleteModal] = useState({ show: false, targetId: null, status: '', stake: 0 });
     const { user } = useAuth();
 
@@ -18,6 +19,8 @@ const Dashboard = () => {
                 } catch (error) {
                     console.error("Failed to fetch targets", error);
                     setTargets([]); // Fallback to empty array
+                } finally {
+                    setLoading(false);
                 }
             }
         };
@@ -65,7 +68,26 @@ const Dashboard = () => {
                 </Link>
             </div>
 
-            {targets.length === 0 ? (
+            {loading ? (
+                <div className="grid gap-6 md:grid-cols-2">
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="glass-panel p-6 rounded-2xl animate-pulse">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="space-y-2">
+                                    <div className="h-6 w-32 bg-white/10 rounded-lg"></div>
+                                    <div className="h-4 w-20 bg-white/5 rounded-lg"></div>
+                                </div>
+                                <div className="h-6 w-16 bg-white/10 rounded-lg"></div>
+                            </div>
+                            <div className="mb-6 h-12 bg-black/20 rounded-lg border border-white/5"></div>
+                            <div className="flex justify-between items-center">
+                                <div className="h-4 w-20 bg-white/5 rounded-lg"></div>
+                                <div className="h-8 w-24 bg-white/10 rounded-lg"></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : targets.length === 0 ? (
                 <div className="text-center py-20 glass-panel rounded-2xl border-dashed border-2 border-white/10">
                     <p className="text-gray-400 text-lg mb-4">No active targets found.</p>
                     <Link to="/create-target" className="text-yellow-400 hover:text-yellow-300 font-bold uppercase tracking-wider text-sm">Create your first target &rarr;</Link>

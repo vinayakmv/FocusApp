@@ -28,6 +28,7 @@ const FocusSession = () => {
     const [sessionId, setSessionId] = useState(null);
     const [msg, setMsg] = useState('');
     const [showGoalReachedModal, setShowGoalReachedModal] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     // Anti-Cheat State
     const [distractedSeconds, setDistractedSeconds] = useState(0);
@@ -49,6 +50,8 @@ const FocusSession = () => {
                     setTarget(t);
                 } catch (error) {
                     console.error("Failed to fetch target", error);
+                } finally {
+                    setLoading(false);
                 }
             }
         };
@@ -226,19 +229,21 @@ const FocusSession = () => {
     };
 
     return (
-        <div className="w-full flex-1 flex flex-col items-center justify-center relative text-[var(--text-primary)] py-4 sm:py-8">
+        <div className="w-full flex-1 flex flex-col items-center justify-center relative text-[var(--text-primary)] py-4 sm:py-8 overflow-hidden">
             {/* Ambient Background */}
             <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] blur-[100px] rounded-full pointer-events-none transition-colors duration-1000 ${isActive ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-600/10'}`}></div>
 
             {/* Distraction Modal */}
             {showDistractionModal && (
-                <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center backdrop-blur-sm">
+                <div className="fixed inset-0 bg-[#0b0b15]/95 z-[100] flex items-center justify-center backdrop-blur-xl px-4">
                     <div className="glass-panel p-8 rounded-2xl max-w-sm w-full text-center border-red-500/30 border-2">
                         <h2 className="text-2xl font-bold mb-4 text-red-400">Distraction Detected!</h2>
                         <p className="mb-6 text-gray-300">You left the app for {distractedSeconds}s. Why?</p>
                         <div className="grid grid-cols-2 gap-4">
                             {['Bored', 'Tired', 'Urgent', 'Accident'].map(r => (
-                                <button key={r} onClick={() => handleDistractionReason(r)} className="p-3 bg-white/10 hover:bg-white/20 rounded-xl font-bold transition-all">{r}</button>
+                                <button key={r} onClick={() => handleDistractionReason(r)} className="p-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold transition-all shadow-lg shadow-black/20 active:scale-95 touch-manipulation">
+                                    {r}
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -247,7 +252,7 @@ const FocusSession = () => {
 
             {/* Rating Modal */}
             {showRatingModal && (
-                <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center backdrop-blur-sm">
+                <div className="fixed inset-0 bg-[#0b0b15]/95 z-[100] flex items-center justify-center backdrop-blur-xl px-4">
                     <div className="glass-panel p-8 rounded-2xl max-w-sm w-full text-center border-[var(--accent-primary)] border-2">
                         <h2 className="text-2xl font-bold mb-2">Session Complete!</h2>
                         <p className="mb-6 text-gray-400">How would you rate your focus?</p>
@@ -257,10 +262,10 @@ const FocusSession = () => {
                                     key={r}
                                     disabled={isSaving}
                                     onClick={() => submitSession(r)}
-                                    className={`w-full p-4 bg-white/5 hover:bg-[var(--accent-primary)]/20 border border-white/10 hover:border-[var(--accent-primary)] rounded-xl font-bold transition-all flex justify-between items-center group touch-manipulation select-none active:scale-[0.98] ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                    className={`w-full p-5 bg-white/10 hover:bg-[var(--accent-primary)]/20 border border-white/5 hover:border-[var(--accent-primary)]/50 rounded-2xl font-bold transition-all flex justify-between items-center group touch-manipulation select-none active:scale-[0.98] ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer shadow-lg shadow-black/20'}`}
                                     style={{ WebkitTapHighlightColor: 'transparent' }}
                                 >
-                                    <span>{isSaving && effortRating === r ? 'Saving...' : r}</span>
+                                    <span className="text-lg tracking-wide">{isSaving && effortRating === r ? 'Saving...' : r}</span>
                                     {!isSaving && <span className="opacity-0 group-hover:opacity-100 scale-125">➡️</span>}
                                 </button>
                             ))}
@@ -295,7 +300,7 @@ const FocusSession = () => {
 
             {/* Goal Reached Modal */}
             {showGoalReachedModal && (
-                <div className="fixed inset-0 bg-black/90 z-[101] flex items-center justify-center backdrop-blur-md animate-fade-in">
+                <div className="fixed inset-0 bg-[#0b0b15]/98 z-[101] flex items-center justify-center backdrop-blur-2xl animate-fade-in px-4">
                     <div className="glass-panel p-10 rounded-3xl max-w-md w-full text-center border-yellow-500/30 border-2 shadow-[0_0_50px_rgba(234,179,8,0.2)]">
                         <div className="text-6xl mb-6">🏆</div>
                         <h2 className="text-3xl font-bold mb-2 text-white">Goal Reached!</h2>
@@ -303,13 +308,13 @@ const FocusSession = () => {
                         <div className="flex gap-4">
                             <button
                                 onClick={() => { setShowGoalReachedModal(false); setIsActive(true); }}
-                                className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold transition-all"
+                                className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold transition-all shadow-lg active:scale-95 touch-manipulation"
                             >
                                 Keep Going
                             </button>
                             <button
                                 onClick={() => { setShowGoalReachedModal(false); setShowRatingModal(true); }}
-                                className="flex-1 py-4 bg-yellow-500 text-black rounded-2xl font-bold hover:brightness-110 shadow-lg shadow-yellow-500/20 transition-all"
+                                className="flex-1 py-4 bg-yellow-500 text-black rounded-2xl font-bold hover:brightness-110 shadow-lg shadow-yellow-500/30 transition-all active:scale-95 touch-manipulation"
                             >
                                 End & Save
                             </button>
@@ -319,33 +324,40 @@ const FocusSession = () => {
             )}
 
             {/* Timer Circle */}
-            <div className={`glass-panel p-4 rounded-full w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex flex-col items-center justify-center border-4 relative z-10 shadow-[0_0_50px_rgba(var(--accent-primary-rgb),0.2)] transition-all duration-500 
-                ${isActive ? 'border-[var(--accent-primary)] scale-105' : 'border-[var(--glass-border)]'}`}>
-                <div className="text-center w-full px-4">
-                    <div className="text-3xl sm:text-4xl md:text-6xl font-mono font-black tracking-tighter text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] truncate">
-                        {formatTime(seconds)}
-                    </div>
-                    <p className="text-[var(--accent-secondary)] mt-2 font-medium tracking-widest uppercase text-xs opacity-80">
-                        {mode === 'POMODORO' ? '25 Min Focus' : mode === 'COUNTDOWN' ? 'Target Time' : 'Deep Work'}
-                    </p>
+            {loading ? (
+                <div className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full glass-panel flex flex-col items-center justify-center border-4 border-white/5 animate-pulse relative z-10">
+                    <div className="h-12 w-40 bg-white/10 rounded-xl mb-4"></div>
+                    <div className="h-4 w-24 bg-white/5 rounded-lg"></div>
                 </div>
-
-                {/* Time Adjustment Controls (Only for Countdown & Inactive) */}
-                {!isActive && mode === 'COUNTDOWN' && (
-                    <div className="absolute bottom-8 flex gap-4 animate-fade-in">
-                        <button
-                            onClick={() => setSeconds(s => Math.max(60, s - 60))}
-                            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-lg font-bold transition-all"
-                            title="Decrease 1m"
-                        >-</button>
-                        <button
-                            onClick={() => setSeconds(s => s + 60)}
-                            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-lg font-bold transition-all"
-                            title="Increase 1m"
-                        >+</button>
+            ) : (
+                <div className={`glass-panel p-4 rounded-full w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex flex-col items-center justify-center border-4 relative z-10 shadow-[0_0_50px_rgba(var(--accent-primary-rgb),0.2)] transition-all duration-500 
+                ${isActive ? 'border-[var(--accent-primary)] scale-105' : 'border-[var(--glass-border)]'}`}>
+                    <div className="text-center w-full px-4">
+                        <div className="text-2xl sm:text-4xl md:text-6xl font-mono font-black tracking-tighter text-[var(--text-primary)] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] truncate">
+                            {formatTime(seconds)}
+                        </div>
+                        <p className="text-[var(--accent-secondary)] mt-2 font-medium tracking-widest uppercase text-xs opacity-80">
+                            {mode === 'POMODORO' ? '25 Min Focus' : mode === 'COUNTDOWN' ? 'Target Time' : 'Deep Work'}
+                        </p>
                     </div>
-                )}
-            </div>
+
+                    {/* Time Adjustment Controls (Only for Countdown & Inactive) */}
+                    {!isActive && mode === 'COUNTDOWN' && (
+                        <div className="absolute bottom-8 flex gap-4 animate-fade-in">
+                            <button
+                                onClick={() => setSeconds(s => Math.max(60, s - 60))}
+                                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-lg font-bold transition-all"
+                                title="Decrease 1m"
+                            >-</button>
+                            <button
+                                onClick={() => setSeconds(s => s + 60)}
+                                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-lg font-bold transition-all"
+                                title="Increase 1m"
+                            >+</button>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Status Message */}
             {msg && <div className="mt-4 px-4 py-2 rounded-lg bg-white/10 text-white/80 text-sm font-medium backdrop-blur-md animate-fade-in z-10">{msg}</div>}

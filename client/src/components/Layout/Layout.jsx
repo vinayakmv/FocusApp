@@ -15,7 +15,7 @@ const Layout = ({ children }) => {
     ];
 
     return (
-        <div className="flex flex-col h-screen overflow-hidden text-[var(--text-primary)] font-sans selection:bg-yellow-500 selection:text-black relative transition-colors duration-500">
+        <div className="flex flex-col h-screen overflow-x-hidden overflow-y-hidden text-[var(--text-primary)] font-sans selection:bg-yellow-500 selection:text-black relative transition-colors duration-500">
 
             {/* Top Bar */}
             <header className="absolute top-0 w-full glass-panel z-50 px-6 py-4 flex justify-between items-center border-b border-white/5 backdrop-blur-md bg-transparent">
@@ -48,7 +48,7 @@ const Layout = ({ children }) => {
             </main>
 
             {/* Mobile Bottom Nav - Themed Dock */}
-            <nav className="fixed bottom-6 left-6 right-6 h-20 glass-panel rounded-2xl flex justify-around items-center z-50 transition-colors duration-500 bg-transparent">
+            <nav className="fixed bottom-4 left-4 right-4 h-16 sm:h-20 glass-panel rounded-2xl flex justify-around items-center z-50 transition-colors duration-500 bg-transparent">
                 {navItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     return (
@@ -58,9 +58,9 @@ const Layout = ({ children }) => {
                             className={`flex flex-col items-center justify-center w-full h-full transition-all duration-200 group relative ${isActive ? 'text-[var(--accent-secondary)]' : 'text-gray-500 hover:text-gray-300'}`}
                         >
                             {/* Active Indicator Line */}
-                            {isActive && <div className="absolute top-0 w-8 h-1 bg-[var(--accent-secondary)] rounded-b-lg shadow-[0_0_10px_currentColor]"></div>}
+                            {isActive && <div className="absolute top-0 w-6 h-1 bg-[var(--accent-secondary)] rounded-b-lg shadow-[0_0_10px_currentColor]"></div>}
 
-                            <span className={`text-2xl mb-1 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`}>{item.icon}</span>
+                            <span className={`text-xl sm:text-2xl mb-0.5 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`}>{item.icon}</span>
                         </Link>
                     )
                 })}
